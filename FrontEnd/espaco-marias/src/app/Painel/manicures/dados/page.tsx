@@ -2,10 +2,9 @@
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
-import React, { Suspense } from "react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import ChangePasswordModal from "../../../../components/ChangePasswordModal";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 
 export default function Page() {
 return (
