@@ -6,7 +6,7 @@ import React, { Suspense } from "react";
 export default function Page() {
 return (
 <Suspense fallback={<div className="p-8 text-center">Carregando painel...</div>}>
-<EditarManicuresClient />
+<EditarManicures/>
 </Suspense>
 );
 }
@@ -31,7 +31,7 @@ interface Manicure {
   createdAt: string;
 }
 
-export default function EditarManicures() {
+function EditarManicures() {
   const searchParams = useSearchParams();
   const pageUserId = searchParams.get('userId') || null;
 
