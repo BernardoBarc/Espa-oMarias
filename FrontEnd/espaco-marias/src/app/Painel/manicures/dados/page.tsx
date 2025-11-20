@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import ChangePasswordModal from "FrontEnd/espaco-marias/src/components/ChangePasswordModal.tsx";
+import ChangePasswordModal from "../../../../components/ChangePasswordModal";
 
 export default function Page() {
 return (
