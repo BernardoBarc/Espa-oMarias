@@ -29,11 +29,9 @@ const saveUser = async ({ name, email, phone, password, servicesId, role, endere
 
 const updateUser = async (id, userData) => {
   try {
-    // aceitar quaisquer campos presentes em userData (phoneCode, emailCode, flags, etc.)
     const user = await User.findByIdAndUpdate(id, userData, { new: true });
     return user;
   } catch (error) {
-    // repassar mensagem original para diagnóstico (ex.: E11000 duplicate key)
     throw new Error(error.message || 'Erro ao atualizar usuário');
   }
 };
