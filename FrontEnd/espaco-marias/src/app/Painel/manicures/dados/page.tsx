@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+import React, { Suspense } from "react";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
