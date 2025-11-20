@@ -1,7 +1,18 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ChangePasswordModal from "../../../../components/ChangePasswordModal";
+
+export default function Page() {
+return (
+<Suspense fallback={<div className="p-8 text-center">Carregando painel...</div>}>
+<EditarManicures/>
+</Suspense>
+);
+}
 
 // Adicione o campo photo na interface
 interface Manicure {
@@ -17,7 +28,7 @@ interface Manicure {
   createdAt: string;
 }
 
-export default function EditarManicures() {
+function EditarManicures() {
   const searchParams = useSearchParams();
   const pageUserId = searchParams.get('userId') || null;
 
