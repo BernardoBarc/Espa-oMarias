@@ -1,7 +1,18 @@
-"use client";
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
+
 import React, { Suspense } from "react";
+import EditarManicuresClient from "./EditarManicuresClient";
+
+export default function Page() {
+return (
+<Suspense fallback={<div className="p-8 text-center">Carregando painel...</div>}>
+<EditarManicuresClient />
+</Suspense>
+);
+}
+
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
