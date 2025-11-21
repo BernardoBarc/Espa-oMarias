@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '../../lib/api';
 
 interface DadosSalao {
   telefone: string;
@@ -12,7 +13,7 @@ interface DadosSalao {
 export default function Registro() {
   const [dadosSalao, setDadosSalao] = useState<DadosSalao | null>(null);
   useEffect(() => {
-    fetch("http://localhost:4000/dados-salao")
+    apiFetch("dados-salao")
       .then((res) => res.json())
       .then((data) => setDadosSalao(data));
   }, []);
@@ -152,9 +153,8 @@ export default function Registro() {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/startPhoneVerification", {
+      const res = await apiFetch("startPhoneVerification", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
       });
       const data = await res.json();
@@ -183,10 +183,8 @@ export default function Registro() {
     if (!phoneCode) return (setMessage("Informe o código recebido"), false);
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/confirmPhoneCode", {
+      const res = await apiFetch("confirmPhoneCode", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // enviar tempId para garantir validação no mesmo registro temporário
         body: JSON.stringify({ phone, code: phoneCode, tempId }),
       });
       const data = await res.json();
@@ -216,10 +214,8 @@ export default function Registro() {
     }
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/startEmailVerification", {
+      const res = await apiFetch("startEmailVerification", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // enviar phone e tempId junto para vincular ao mesmo temp user
         body: JSON.stringify({ email, phone, tempId }),
       });
       const data = await res.json();
@@ -254,10 +250,8 @@ export default function Registro() {
     if (!emailCode) return (setMessage("Informe o código recebido por email"), false);
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/confirmEmailCode", {
+      const res = await apiFetch("confirmEmailCode", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // enviar tempId para garantir validação no mesmo registro temporário
         body: JSON.stringify({ email, code: emailCode, tempId }),
       });
       const data = await res.json();
@@ -311,10 +305,8 @@ export default function Registro() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/CriarUser", {
+      const res = await apiFetch("CriarUser", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // usar os valores verificados (para segurança extra)
         body: JSON.stringify({ name, email: verifiedEmail, phone: verifiedPhone, password, tempId }),
       });
       const data = await res.json();
@@ -358,9 +350,8 @@ export default function Registro() {
     setLoading(true);
     try {
       // PRIMEIRO: Verificar se telefone ou email já existem ANTES de qualquer processo
-      const checkRes = await fetch("http://localhost:4000/checkDuplicates", {
+      const checkRes = await apiFetch("checkDuplicates", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           phone: phone.replace(/\D/g, ''), // Enviar apenas números
           email: email 

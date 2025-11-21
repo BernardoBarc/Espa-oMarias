@@ -30,9 +30,9 @@ export default function VisualizarAgendamentosAdmin() {
     setLoading(true);
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users").then(r => r.json()),
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users").then(r => r.json()),
+        fetch("servicos").then(r => r.json()),
       ]);
       // Recupera o id da admin logada
       const userId = sessionStorage.getItem('userId');
@@ -53,7 +53,7 @@ export default function VisualizarAgendamentosAdmin() {
   const atualizarStatus = async (id: string, novoStatus: string) => {
     setAtualizando(id);
     try {
-      const response = await fetch(`http://localhost:4000/atualizarAgendamentos/${id}` , {
+      const response = await fetch(`atualizarAgendamentos/${id}` , {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: novoStatus }),
@@ -368,3 +368,4 @@ export default function VisualizarAgendamentosAdmin() {
     </main>
   );
 }
+

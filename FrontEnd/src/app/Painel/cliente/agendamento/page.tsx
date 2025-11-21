@@ -60,9 +60,9 @@ export default function AgendamentoClient() {
   const fetchAll = async () => {
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users").then(r => r.json()), // Buscar todos os usuários
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users").then(r => r.json()), // Buscar todos os usuários
+        fetch("servicos").then(r => r.json()),
       ]);
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
       const userAgendamentos = ags.filter((ag: Agendamento) => ag.clientId === userId);
@@ -185,7 +185,7 @@ export default function AgendamentoClient() {
         status: 'pendente',
         adicionais: adicionaisSelecionadosObjs
       };
-      const response = await fetch("http://localhost:4000/criarAgendamentos", {
+      const response = await fetch("criarAgendamentos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

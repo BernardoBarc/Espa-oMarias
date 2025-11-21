@@ -25,8 +25,8 @@ export default function RelatoriosMensais() {
     setLoading(true);
     try {
       const [ags, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("servicos").then(r => r.json()),
       ]);
       setAgendamentos(ags);
       setServicos(ss);

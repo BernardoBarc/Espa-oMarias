@@ -29,7 +29,7 @@ export default function EsqueciSenha() {
     
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/forgot-password", {
+      const res = await fetch("forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -65,7 +65,7 @@ export default function EsqueciSenha() {
     console.log('🔍 Frontend - Verificando código:', { email, code: resetCode, codeLength: resetCode.length, codeType: typeof resetCode });
     
     try {
-      const res = await fetch("http://localhost:4000/verify-reset-code", {
+      const res = await fetch("verify-reset-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: resetCode }),
@@ -106,7 +106,7 @@ export default function EsqueciSenha() {
     
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/reset-password", {
+      const res = await fetch("reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: resetCode, newPassword }),
@@ -133,7 +133,7 @@ export default function EsqueciSenha() {
     setMessage("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/forgot-password", {
+      const res = await fetch("forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -438,3 +438,4 @@ export default function EsqueciSenha() {
     </main>
   );
 }
+

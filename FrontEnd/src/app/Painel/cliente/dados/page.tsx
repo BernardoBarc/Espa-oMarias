@@ -26,7 +26,7 @@ export default function Dados() {
   const fetchUserData = async () => {
     try {
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
-      const response = await fetch(`http://localhost:4000/users/${userId}`);
+      const response = await fetch(`users/${userId}`);
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);

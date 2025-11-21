@@ -41,7 +41,7 @@ export default function Home() {
 
   const fetchDados = async () => {
     try {
-      const res = await fetch("http://localhost:4000/dados-salao");
+      const res = await fetch("dados-salao");
       const data = await res.json();
       setDadosSalao(data);
     } catch (err) {

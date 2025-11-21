@@ -71,9 +71,9 @@ export default function AdminAgendamentos() {
   const fetchAll = async () => {
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users").then(r => r.json()), // Remove o filtro role=manicure
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users").then(r => r.json()), // Remove o filtro role=manicure
+        fetch("servicos").then(r => r.json()),
       ]);
 
       // Se houver agendamentos cujas manicureId ou clientId não existem mais em users, deletar automaticamente
@@ -82,7 +82,7 @@ export default function AdminAgendamentos() {
         const orphans = agendamentosList.filter(a => !userIds.has(a.manicureId) || !userIds.has(a.clientId));
         if (orphans.length === 0) return 0;
         try {
-          await Promise.all(orphans.map(o => fetch(`http://localhost:4000/agendamentos/${o._id}`, { method: 'DELETE' })));
+          await Promise.all(orphans.map(o => fetch(`agendamentos/${o._id}`, { method: 'DELETE' })));
           console.info(`cleanupOrphanAgendamentos: deleted ${orphans.length} orphan agendamentos`);
           return orphans.length;
         } catch (e) {
@@ -101,7 +101,7 @@ export default function AdminAgendamentos() {
       if (deleted > 0) {
         // recarregar dados atualizados
         const [ags2] = await Promise.all([
-          fetch("http://localhost:4000/agendamentos").then(r => r.json()),
+          fetch("agendamentos").then(r => r.json()),
         ]);
         setAgendamentos(ags2);
       }
@@ -183,7 +183,7 @@ export default function AdminAgendamentos() {
         setLoading(false);
         return;
       }
-      const response = await fetch("http://localhost:4000/criarAgendamentos", {
+      const response = await fetch("criarAgendamentos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, dataAgendamento: data }),
@@ -206,7 +206,7 @@ export default function AdminAgendamentos() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:4000/agendamentos/${id}`, {
+      const response = await fetch(`agendamentos/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Erro ao deletar agendamento");
@@ -297,13 +297,13 @@ export default function AdminAgendamentos() {
       const payload = { ...form, dataAgendamento: data, tempoAproximado: servicoSelecionado.tempoAproximado };
       let response;
       if (editId) {
-        response = await fetch(`http://localhost:4000/atualizarAgendamentos/${editId}`, {
+        response = await fetch(`atualizarAgendamentos/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
-        response = await fetch("http://localhost:4000/criarAgendamentos", {
+        response = await fetch("criarAgendamentos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -1080,4 +1080,5 @@ export default function AdminAgendamentos() {
     </main>
   );
 }
+
 

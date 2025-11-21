@@ -49,7 +49,7 @@ export default function MeusDadosAdmin() {
     try {
       const userId = sessionStorage.getItem('userId');
       if (!userId) return;
-      const response = await fetch(`http://localhost:4000/users/${userId}`);
+      const response = await fetch(`users/${userId}`);
       const data = await response.json();
       setAdmin(data);
       setForm(data);
@@ -113,7 +113,7 @@ export default function MeusDadosAdmin() {
     }
     try {
       const targetId = tempId || admin?._id || sessionStorage.getItem('userId');
-      const response = await fetch('http://localhost:4000/startEmailVerification', {
+      const response = await fetch('startEmailVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, tempId: targetId }),
@@ -136,7 +136,7 @@ export default function MeusDadosAdmin() {
   const confirmEmailCode = async () => {
     if (!emailTempId) return;
     try {
-      const response = await fetch('http://localhost:4000/confirmEmailCode', {
+      const response = await fetch('confirmEmailCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: emailCode, tempId: emailTempId }),
@@ -153,7 +153,7 @@ export default function MeusDadosAdmin() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`http://localhost:4000/atualizarUser/${admin?._id}`, {
+        const updateResponse = await fetch(`atualizarUser/${admin?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: emailToVerify }),
@@ -187,7 +187,7 @@ export default function MeusDadosAdmin() {
     }
     try {
       const targetId = tempId || admin?._id || sessionStorage.getItem('userId');
-      const response = await fetch('http://localhost:4000/startPhoneVerification', {
+      const response = await fetch('startPhoneVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: form.phone, tempId: targetId }),
@@ -210,7 +210,7 @@ export default function MeusDadosAdmin() {
   const confirmPhoneCode = async () => {
     if (!phoneTempId) return;
     try {
-      const response = await fetch('http://localhost:4000/confirmPhoneCode', {
+      const response = await fetch('confirmPhoneCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: phoneCode, tempId: phoneTempId }),
@@ -227,7 +227,7 @@ export default function MeusDadosAdmin() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`http://localhost:4000/atualizarUser/${admin?._id}`, {
+        const updateResponse = await fetch(`atualizarUser/${admin?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone: phoneToVerify }),
@@ -324,7 +324,7 @@ export default function MeusDadosAdmin() {
 
     try {
       console.log('UPDATE payload', payload);
-      const response = await fetch(`http://localhost:4000/atualizarUser/${admin._id}`, {
+      const response = await fetch(`atualizarUser/${admin._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -821,3 +821,4 @@ export default function MeusDadosAdmin() {
     </main>
   );
 }
+

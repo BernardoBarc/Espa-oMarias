@@ -4,6 +4,7 @@ export const fetchCache = "force-no-store";
 import React, { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { apiFetch, apiUrl } from '../../../lib/api';
 
 function VerifyPageContent() {
   const search = useSearchParams();
@@ -102,7 +103,7 @@ function VerifyPageContent() {
         return;
       }
 
-      const res = await fetch(`http://localhost:4000/user/${tempId}`);
+      const res = await fetch(apiUrl(`user/${tempId}`));
       if (!res.ok) {
         setMessage("Não foi possível carregar o registro temporário. Reinicie o fluxo.");
         return;
@@ -143,7 +144,7 @@ function VerifyPageContent() {
     setMessage("");
     try {
       const phoneToVerify = user?.phone || user?.phonePending || "";
-      const res = await fetch("http://localhost:4000/confirmPhoneCode", {
+      const res = await fetch("confirmPhoneCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, code: phoneCode }),
@@ -181,7 +182,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://localhost:4000/startEmailVerification", {
+      const res = await fetch("startEmailVerification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, email: emailVal, phone: user?.phone || "" }),
@@ -230,7 +231,7 @@ function VerifyPageContent() {
     setMessage("");
     try {
       const emailToVerify = emailVal;
-      const res = await fetch("http://localhost:4000/confirmEmailCode", {
+      const res = await fetch("confirmEmailCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, code: emailCode }),
@@ -269,7 +270,7 @@ function VerifyPageContent() {
     setMessage("");
     try {
       const phoneToUse = user?.phone || user?.phonePending || "";
-      const res = await fetch("http://localhost:4000/startPhoneVerification", {
+      const res = await fetch("startPhoneVerification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, phone: phoneToUse }),
@@ -302,7 +303,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://localhost:4000/startEmailVerification", {
+      const res = await fetch("startEmailVerification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, email: emailVal, phone: user?.phone || "" }),
@@ -335,7 +336,7 @@ function VerifyPageContent() {
     let freshData = user;
     
     try {
-      const res = await fetch(`http://localhost:4000/user/${tempId}`);
+      const res = await fetch(`user/${tempId}`);
       if (res.ok) {
         freshData = await res.json();
         setUser(freshData);
@@ -391,7 +392,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://localhost:4000/CriarUser", {
+      const res = await fetch("CriarUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // usar valores finais verificados (servidor ou local)
@@ -775,3 +776,4 @@ export default function VerifyPage() {
     </Suspense>
   );
 }
+

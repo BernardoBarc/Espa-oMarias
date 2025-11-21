@@ -56,7 +56,7 @@ export default function HistoricoComponent() {
       if (loading) return; // Não verificar se estiver carregando algo
       
       try {
-        const response = await fetch("http://localhost:4000/agendamentos");
+        const response = await fetch("agendamentos");
         const agendamentos = await response.json();
         const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
         
@@ -85,9 +85,9 @@ export default function HistoricoComponent() {
   const fetchAll = async () => {
     try {
       const [ags, ms, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users?role=manicure").then(r => r.json()),
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users?role=manicure").then(r => r.json()),
+        fetch("servicos").then(r => r.json()),
       ]);
       
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
@@ -105,7 +105,7 @@ export default function HistoricoComponent() {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/atualizarAgendamentos/${id}`, {
+      const response = await fetch(`atualizarAgendamentos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: 'cancelado' }),

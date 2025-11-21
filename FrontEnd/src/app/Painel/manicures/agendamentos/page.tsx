@@ -51,7 +51,7 @@ export default function VisualizarSolicitacoes() {
       console.log('Carregando clientes e serviços...');
       
       // Carregar clientes
-      fetch("http://localhost:4000/users")
+      fetch("users")
         .then(res => res.json())
         .then(data => {
           console.log('Todos os usuários:', data);
@@ -80,7 +80,7 @@ export default function VisualizarSolicitacoes() {
 
       // Carregar serviços (se não estiverem carregados)
       if (servicos.length === 0) {
-        fetch("http://localhost:4000/servicos")
+        fetch("servicos")
           .then(res => res.json())
           .then(data => {
             console.log('Serviços carregados:', data);
@@ -101,7 +101,7 @@ export default function VisualizarSolicitacoes() {
       if (atualizando) return; // Não verificar se estiver atualizando algo
       
       try {
-        const response = await fetch("http://localhost:4000/agendamentos");
+        const response = await fetch("agendamentos");
         const agendamentos = await response.json();
         const userId = sessionStorage.getItem('userId');
         
@@ -131,9 +131,9 @@ export default function VisualizarSolicitacoes() {
     setLoading(true);
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users").then(r => r.json()),
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users").then(r => r.json()),
+        fetch("servicos").then(r => r.json()),
       ]);
       // Recupera o id da manicure logada
       const userId = sessionStorage.getItem('userId');
@@ -163,7 +163,7 @@ export default function VisualizarSolicitacoes() {
     try {
       const token = sessionStorage.getItem('token');
       
-      const response = await fetch(`http://localhost:4000/atualizarAgendamentos/${id}`, {
+      const response = await fetch(`atualizarAgendamentos/${id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -245,7 +245,7 @@ export default function VisualizarSolicitacoes() {
       
       const token = sessionStorage.getItem('token');
       
-      const response = await fetch('http://localhost:4000/criarAgendamentos', {
+      const response = await fetch('criarAgendamentos', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

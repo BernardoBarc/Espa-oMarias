@@ -74,7 +74,7 @@ export default function AdminServicos() {
 
   const fetchServicos = async () => {
     try {
-      const response = await fetch("http://localhost:4000/servicos");
+      const response = await fetch("servicos");
       if (!response.ok) throw new Error("Erro ao buscar serviços");
       const data = await response.json();
       setServicos(data);
@@ -112,14 +112,14 @@ export default function AdminServicos() {
       let response;
       if (editId) {
         // Atualizar serviço existente
-        response = await fetch(`http://localhost:4000/servicos/${editId}`, {
+        response = await fetch(`servicos/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         // Criar novo serviço
-        response = await fetch("http://localhost:4000/servicos", {
+        response = await fetch("servicos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -171,7 +171,7 @@ export default function AdminServicos() {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:4000/servicos/${id}`, {
+      const response = await fetch(`servicos/${id}`, {
         method: "DELETE",
       });
 

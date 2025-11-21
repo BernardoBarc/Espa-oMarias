@@ -48,7 +48,7 @@ export default function ChangePasswordModal({
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:4000/change-password", {
+      const response = await fetch("change-password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -178,3 +178,4 @@ export default function ChangePasswordModal({
     </div>
   );
 }
+

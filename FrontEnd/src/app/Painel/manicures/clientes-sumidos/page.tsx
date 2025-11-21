@@ -30,8 +30,8 @@ export default function ClientesInativos() {
     setLoading(true);
     try {
       const [clientesData, ags] = await Promise.all([
-        fetch("http://localhost:4000/users?role=client").then(r => r.json()),
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
+        fetch("users?role=client").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
       ]);
       setClientes(clientesData);
       setAgendamentos(ags);

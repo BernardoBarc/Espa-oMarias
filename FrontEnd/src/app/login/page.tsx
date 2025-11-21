@@ -18,7 +18,7 @@ export default function Login() {
     console.log("📤 Dados sendo enviados:", formData);
     
     try {
-      const add = await fetch('http://localhost:4000/loginUser', {
+      const add = await fetch('loginUser', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(formData)

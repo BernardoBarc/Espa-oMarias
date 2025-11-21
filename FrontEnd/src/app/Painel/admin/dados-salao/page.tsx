@@ -41,7 +41,7 @@ export default function DadosSalaoAdmin() {
   const fetchDadosSalao = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/dados-salao");
+      const res = await fetch("dados-salao");
       const data = await res.json();
       const payload = Array.isArray(data) ? (data.length > 0 ? data[0] : {}) : (data || {});
       console.log('fetchDadosSalao payload:', payload);
@@ -201,7 +201,7 @@ export default function DadosSalaoAdmin() {
     try {
       const payload = { ...dados };
       console.log('enviando dados do salao:', payload);
-      const response = await fetch("http://localhost:4000/atualizarDadosSalao", {
+      const response = await fetch("atualizarDadosSalao", {
         method: dados._id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -564,3 +564,4 @@ export default function DadosSalaoAdmin() {
     </main>
   );
 }
+

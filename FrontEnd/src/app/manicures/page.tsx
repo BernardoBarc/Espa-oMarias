@@ -23,7 +23,7 @@ export default function Manicures() {
 	const [dadosSalao, setDadosSalao] = useState<DadosSalao | null>(null);
 
 	useEffect(() => {
-		fetch("http://localhost:4000/users")
+		fetch("users")
 			.then((res) => res.json())
 			.then((data) => {
 				const manicuresAndAdmins = data.filter(
@@ -32,7 +32,7 @@ export default function Manicures() {
 				console.log('manicures fetched:', manicuresAndAdmins);
 				setManicures(manicuresAndAdmins);
 			});
-		fetch("http://localhost:4000/dados-salao")
+		fetch("dados-salao")
 			.then((res) => res.json())
 			.then((data) => setDadosSalao(data));
 	}, []);
@@ -347,3 +347,4 @@ export default function Manicures() {
 		</main>
 	);
 }
+

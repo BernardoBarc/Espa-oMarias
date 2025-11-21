@@ -67,7 +67,7 @@ function EditarManicures() {
       const userIdQuery = pageUserId;
       const userId = userIdQuery || sessionStorage.getItem('userId');
       if (!userId) return;
-      const response = await fetch(`http://localhost:4000/users/${userId}`);
+      const response = await fetch(`users/${userId}`);
       const data = await response.json();
       setManicure(data);
       setForm(data);
@@ -132,7 +132,7 @@ function EditarManicures() {
     }
     try {
       const targetId = tempId || pageUserId || manicure?._id || sessionStorage.getItem('userId');
-      const response = await fetch('http://localhost:4000/startEmailVerification', {
+      const response = await fetch('startEmailVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, tempId: targetId }),
@@ -151,7 +151,7 @@ function EditarManicures() {
   const confirmEmailCode = async () => {
     if (!emailTempId) return;
     try {
-      const response = await fetch('http://localhost:4000/confirmEmailCode', {
+      const response = await fetch('confirmEmailCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: emailCode, tempId: emailTempId }),
@@ -168,7 +168,7 @@ function EditarManicures() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`http://localhost:4000/atualizarUser/${manicure?._id}`, {
+        const updateResponse = await fetch(`atualizarUser/${manicure?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: emailToVerify }),
@@ -203,7 +203,7 @@ function EditarManicures() {
     }
     try {
       const targetId = tempId || pageUserId || manicure?._id || sessionStorage.getItem('userId');
-      const response = await fetch('http://localhost:4000/startPhoneVerification', {
+      const response = await fetch('startPhoneVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: form.phone, tempId: targetId }),
@@ -222,7 +222,7 @@ function EditarManicures() {
   const confirmPhoneCode = async () => {
     if (!phoneTempId) return;
     try {
-      const response = await fetch('http://localhost:4000/confirmPhoneCode', {
+      const response = await fetch('confirmPhoneCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: phoneCode, tempId: phoneTempId }),
@@ -239,7 +239,7 @@ function EditarManicures() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`http://localhost:4000/atualizarUser/${manicure?._id}`, {
+        const updateResponse = await fetch(`atualizarUser/${manicure?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone: phoneToVerify }),
@@ -336,7 +336,7 @@ function EditarManicures() {
 
     try {
       console.log('UPDATE payload', payload);
-      const response = await fetch(`http://localhost:4000/atualizarUser/${manicure._id}`, {
+      const response = await fetch(`atualizarUser/${manicure._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -835,3 +835,4 @@ function EditarManicures() {
     </main>
   );
 }
+

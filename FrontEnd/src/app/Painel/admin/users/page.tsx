@@ -39,7 +39,7 @@ export default function Users() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:4000/users");
+      const response = await fetch("users");
       if (!response.ok) throw new Error("Erro ao buscar usuários");
       const data = await response.json();
       setUsers(data);
@@ -70,7 +70,7 @@ export default function Users() {
   const deleteUser = async (id: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/deletarUser/${id}`, {
+      const response = await fetch(`deletarUser/${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       });
@@ -92,7 +92,7 @@ export default function Users() {
     setLoading(true);
     try {
       console.log('🔄 Enviando requisição de verificação de email para:', form.email);
-      const response = await fetch('http://localhost:4000/startEmailVerification', {
+      const response = await fetch('startEmailVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email }),
@@ -127,7 +127,7 @@ export default function Users() {
     setLoading(true);
     try {
       console.log('📧 Confirmando email com tempId:', emailTempId, 'código:', emailCode);
-      const response = await fetch('http://localhost:4000/confirmEmailCode', {
+      const response = await fetch('confirmEmailCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: emailCode, tempId: emailTempId }),
@@ -166,7 +166,7 @@ export default function Users() {
       
       console.log('📱 Payload da requisição:', requestBody);
       
-      const response = await fetch('http://localhost:4000/startPhoneVerification', {
+      const response = await fetch('startPhoneVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody),
@@ -208,7 +208,7 @@ export default function Users() {
     setLoading(true);
     try {
       console.log('📱 Confirmando telefone com tempId:', tempIdToUse, 'código:', phoneCode);
-      const response = await fetch('http://localhost:4000/confirmPhoneCode', {
+      const response = await fetch('confirmPhoneCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: phoneCode, tempId: tempIdToUse }),
@@ -302,7 +302,7 @@ export default function Users() {
       console.log('🔄 Criando usuário final com payload:', createPayload);
       console.log('📋 Verificações completadas - EmailTempId:', emailTempId, 'PhoneTempId:', phoneTempId);
       
-      const response = await fetch("http://localhost:4000/CriarUser", {
+      const response = await fetch("CriarUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(createPayload),
@@ -316,7 +316,7 @@ export default function Users() {
       }
 
       if (form.role !== 'client') {
-        const updateResponse = await fetch(`http://localhost:4000/atualizarUser/${data._id}`, {
+        const updateResponse = await fetch(`atualizarUser/${data._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role: form.role }),

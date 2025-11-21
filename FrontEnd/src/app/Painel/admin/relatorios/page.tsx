@@ -62,9 +62,9 @@ export default function RelatoriosMensais() {
     setLoading(true);
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("http://localhost:4000/agendamentos").then(r => r.json()),
-        fetch("http://localhost:4000/users").then(r => r.json()),
-        fetch("http://localhost:4000/servicos").then(r => r.json()),
+        fetch("agendamentos").then(r => r.json()),
+        fetch("users").then(r => r.json()),
+        fetch("servicos").then(r => r.json()),
       ]);
       setAgendamentos(ags);
       setManicures(us.filter((u: User) => u.role === "manicure"));
