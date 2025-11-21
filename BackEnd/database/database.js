@@ -8,10 +8,7 @@ const MONGO_URI = process.env.MONGO_URI || process.env.DATABASE_URL || "mongodb:
 // Conectar ao MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(MONGO_URI);
     console.log("✅ Conexão com o banco de dados estabelecida com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao conectar com o banco de dados:", error);
