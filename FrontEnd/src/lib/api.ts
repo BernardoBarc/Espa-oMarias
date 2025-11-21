@@ -4,7 +4,7 @@
 const getApiUrl = (): string => {
   // Em produção (Vercel), usar a variável de ambiente
   if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_API_URL || 'https://sua-api-railway.up.railway.app';
+    return process.env.NEXT_PUBLIC_API_URL || 'https://espacomarias-production.up.railway.app';
   }
   
   // Em desenvolvimento, usar localhost
