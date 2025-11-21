@@ -5,13 +5,7 @@ import React, { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function VerifyPage() {
-  return (
-<Suspense fallback={<div className="p-8 text-center">Carregando Página</div>}>
-<EditarManicures/>
-</Suspense>
-);
-}
+function VerifyPageContent() {
   const search = useSearchParams();
   const router = useRouter();
   const tempId = search.get("tempId");
@@ -771,5 +765,13 @@ export default function VerifyPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Carregando Página...</div>}>
+      <VerifyPageContent />
+    </Suspense>
   );
 }
