@@ -4,11 +4,15 @@
 const getApiUrl = (): string => {
   // Em produção (Vercel), usar a variável de ambiente
   if (process.env.NODE_ENV === 'production') {
-    return process.env.NEXT_PUBLIC_API_URL || 'https://sua-api-railway.up.railway.app';
+    const prodUrl = process.env.NEXT_PUBLIC_API_URL || 'https://espacomarias-production.up.railway.app';
+    console.log('🌐 Modo PRODUÇÃO - API URL:', prodUrl);
+    return prodUrl;
   }
   
   // Em desenvolvimento, usar localhost
-  return 'http://localhost:4000';
+  const devUrl = 'http://localhost:4000';
+  console.log('🔧 Modo DESENVOLVIMENTO - API URL:', devUrl);
+  return devUrl;
 };
 
 export const API_URL = getApiUrl();
@@ -17,7 +21,9 @@ export const API_URL = getApiUrl();
 export const apiUrl = (endpoint: string): string => {
   // Remove a barra inicial se existir
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  return `${API_URL}/${cleanEndpoint}`;
+  const fullUrl = `${API_URL}/${cleanEndpoint}`;
+  console.log('📡 Fazendo requisição para:', fullUrl);
+  return fullUrl;
 };
 
 // Função helper para fazer fetch com configuração padrão
@@ -32,7 +38,28 @@ export const apiFetch = async (endpoint: string, options?: RequestInit): Promise
     ...options,
   };
 
-  return fetch(url, defaultOptions);
+  console.log('🚀 Enviando requisição:', {
+    url,
+    method: options?.method || 'GET',
+    headers: defaultOptions.headers
+  });
+
+  try {
+    const response = await fetch(url, defaultOptions);
+    console.log('📨 Resposta recebida:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+    return response;
+  } catch (error) {
+    console.error('❌ Erro na requisição:', {
+      url,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    throw error;
+  }
 };
 
 export default API_URL;
