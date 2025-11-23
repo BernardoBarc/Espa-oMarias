@@ -3,6 +3,7 @@ import userService from '../services/userService.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { sendVerificationCode } from '../services/smsService.js';
 
 const router = express.Router();
 
@@ -429,8 +430,18 @@ router.post('/startPhoneVerification', async (req, res) => {
   try {
     await cleanOldTempUsers();
     
-    const code = generateCode();
-    const expires = new Date(Date.now() + 5 * 60 * 1000);
+    // Gerar e enviar código via SMS
+    console.log('📱 Enviando código SMS para:', phone);
+    const smsResult = await sendVerificationCode(phone);
+    
+    if (!smsResult.success && !smsResult.fallback) {
+      return res.status(500).json({ 
+        error: 'Erro ao enviar SMS. Tente novamente.' 
+      });
+    }
+    
+    const code = smsResult.code;
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
 
     let user = null;
     if (tempId) {
@@ -444,8 +455,9 @@ router.post('/startPhoneVerification', async (req, res) => {
       });
       
       // Log do código para desenvolvimento
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== 'production' || smsResult.fallback) {
         console.log('📱 Código de verificação de telefone para', phone, ':', code, '(tempId update)');
+        console.log('📱 SMS Status:', smsResult.success ? 'Enviado' : 'Simulado');
       }
       
       const resp = { ok: true, tempId: user._id.toString() };
@@ -489,8 +501,9 @@ router.post('/startPhoneVerification', async (req, res) => {
       });
       
       // Log do código para desenvolvimento
-      if (process.env.NODE_ENV !== 'production') {
+      if (process.env.NODE_ENV !== 'production' || smsResult.fallback) {
         console.log('📱 Código de verificação de telefone para', phone, ':', code);
+        console.log('📱 SMS Status:', smsResult.success ? 'Enviado' : 'Simulado');
       }
       
       const resp = { ok: true, tempId: existingTempUser._id.toString() };

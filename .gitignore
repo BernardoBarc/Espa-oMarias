@@ -7,3 +7,4 @@ FrontEnd/node_modules/
 dist/
 build/
 .next/
+README.md
