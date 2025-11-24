@@ -8,6 +8,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Importar smsService para inicialização
+import './services/smsService.js';
+
+console.log('🔍 [STARTUP] Verificando variáveis Twilio no startup:');
+console.log('🔍 [STARTUP] TWILIO_ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID ? 'CONFIGURADO' : 'MISSING');
+console.log('🔍 [STARTUP] TWILIO_AUTH_TOKEN:', process.env.TWILIO_AUTH_TOKEN ? 'CONFIGURADO' : 'MISSING'); 
+console.log('🔍 [STARTUP] TWILIO_PHONE_NUMBER:', process.env.TWILIO_PHONE_NUMBER || 'MISSING');
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -38,6 +46,27 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     message: 'Servidor funcionando',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// SMS test endpoint
+app.get('/test-sms-config', (req, res) => {
+  console.log('🔍 [TEST] Endpoint de teste SMS chamado');
+  
+  const config = {
+    accountSid: process.env.TWILIO_ACCOUNT_SID ? 'CONFIGURADO' : 'MISSING',
+    authToken: process.env.TWILIO_AUTH_TOKEN ? 'CONFIGURADO' : 'MISSING',
+    phoneNumber: process.env.TWILIO_PHONE_NUMBER || 'MISSING',
+    nodeEnv: process.env.NODE_ENV || 'development'
+  };
+  
+  console.log('🔍 [TEST] Configuração atual:', config);
+  
+  res.json({
+    status: 'OK',
+    message: 'Teste de configuração SMS',
+    config: config,
     timestamp: new Date().toISOString()
   });
 });
