@@ -431,8 +431,15 @@ router.post('/startPhoneVerification', async (req, res) => {
     await cleanOldTempUsers();
     
     // Gerar e enviar código via SMS
-    console.log('📱 Enviando código SMS para:', phone);
+    console.log('📱 [PRODUCTION] Iniciando envio SMS para:', phone);
+    console.log('📱 [PRODUCTION] Twilio configurado:', {
+      accountSid: process.env.TWILIO_ACCOUNT_SID ? 'OK' : 'MISSING',
+      authToken: process.env.TWILIO_AUTH_TOKEN ? 'OK' : 'MISSING', 
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER
+    });
+    
     const smsResult = await sendVerificationCode(phone);
+    console.log('📱 [PRODUCTION] Resultado SMS:', smsResult);
     
     if (!smsResult.success && !smsResult.fallback) {
       return res.status(500).json({ 

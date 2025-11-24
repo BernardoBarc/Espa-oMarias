@@ -9,26 +9,26 @@ let client = null;
 // Inicializar cliente Twilio apenas se as credenciais existirem
 if (accountSid && authToken && twilioPhoneNumber) {
   client = twilio(accountSid, authToken);
-  console.log('📱 Twilio configurado com sucesso');
-  console.log('📱 Account SID:', accountSid);
-  console.log('📱 Phone Number:', twilioPhoneNumber);
+  console.log('📱 [PRODUCTION] Twilio configurado com sucesso');
+  console.log('📱 [PRODUCTION] Account SID:', accountSid);
+  console.log('📱 [PRODUCTION] Phone Number:', twilioPhoneNumber);
 } else {
-  console.warn('⚠️ Credenciais do Twilio não encontradas:');
-  console.warn('  - Account SID:', accountSid ? 'OK' : 'MISSING');
-  console.warn('  - Auth Token:', authToken ? 'OK' : 'MISSING');
-  console.warn('  - Phone Number:', twilioPhoneNumber ? twilioPhoneNumber : 'MISSING');
-  console.warn('⚠️ SMS será simulado.');
+  console.error('⚠️ [PRODUCTION] Credenciais do Twilio não encontradas:');
+  console.error('  - Account SID:', accountSid ? 'OK' : 'MISSING');
+  console.error('  - Auth Token:', authToken ? 'OK' : 'MISSING');
+  console.error('  - Phone Number:', twilioPhoneNumber ? twilioPhoneNumber : 'MISSING');
+  console.error('⚠️ [PRODUCTION] SMS será simulado.');
 }
 
 // Função para enviar SMS
 export const sendSMS = async (phoneNumber, message) => {
-  console.log('📱 sendSMS chamada com:', { phoneNumber, messageLength: message.length });
+  console.log('📱 [PRODUCTION] sendSMS chamada com:', { phoneNumber, messageLength: message.length });
   
   try {
     // Se não tem cliente configurado, simular envio
     if (!client) {
-      console.log('📱 SMS SIMULADO para', phoneNumber, ':', message);
-      console.log('📱 Motivo: Cliente Twilio não configurado');
+      console.log('📱 [PRODUCTION] SMS SIMULADO para', phoneNumber, ':', message);
+      console.log('📱 [PRODUCTION] Motivo: Cliente Twilio não configurado');
       return {
         success: true,
         sid: 'simulated_' + Date.now(),
@@ -39,11 +39,11 @@ export const sendSMS = async (phoneNumber, message) => {
     // Formatar número para padrão internacional (+55)
     const formattedPhone = formatPhoneForTwilio(phoneNumber);
     
-    console.log('📱 Enviando SMS real para:', formattedPhone);
-    console.log('📱 Número original:', phoneNumber);
-    console.log('📱 Número formatado:', formattedPhone);
-    console.log('📱 Mensagem:', message);
-    console.log('📱 De:', twilioPhoneNumber);
+    console.log('📱 [PRODUCTION] Enviando SMS real para:', formattedPhone);
+    console.log('📱 [PRODUCTION] Número original:', phoneNumber);
+    console.log('📱 [PRODUCTION] Número formatado:', formattedPhone);
+    console.log('📱 [PRODUCTION] Mensagem:', message);
+    console.log('📱 [PRODUCTION] De:', twilioPhoneNumber);
     
     const message_result = await client.messages.create({
       body: message,
@@ -51,8 +51,8 @@ export const sendSMS = async (phoneNumber, message) => {
       to: formattedPhone
     });
 
-    console.log('✅ SMS enviado com sucesso:', message_result.sid);
-    console.log('✅ Status:', message_result.status);
+    console.log('✅ [PRODUCTION] SMS enviado com sucesso:', message_result.sid);
+    console.log('✅ [PRODUCTION] Status:', message_result.status);
     
     return {
       success: true,
@@ -61,9 +61,9 @@ export const sendSMS = async (phoneNumber, message) => {
     };
     
   } catch (error) {
-    console.error('❌ Erro ao enviar SMS:', error);
-    console.error('❌ Código do erro:', error.code);
-    console.error('❌ Mensagem completa:', error.message);
+    console.error('❌ [PRODUCTION] Erro ao enviar SMS:', error);
+    console.error('❌ [PRODUCTION] Código do erro:', error.code);
+    console.error('❌ [PRODUCTION] Mensagem completa:', error.message);
     
     // Em caso de erro, retornar simulação para não quebrar o fluxo
     return {
