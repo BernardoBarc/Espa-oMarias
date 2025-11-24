@@ -144,7 +144,7 @@ function VerifyPageContent() {
     setMessage("");
     try {
       const phoneToVerify = user?.phone || user?.phonePending || "";
-      const res = await fetch("confirmPhoneCode", {
+      const res = await apiFetch("api/users/confirmPhoneCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, code: phoneCode }),
@@ -182,7 +182,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("startEmailVerification", {
+      const res = await apiFetch("api/users/startEmailVerification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, email: emailVal, phone: user?.phone || "" }),
@@ -269,21 +269,20 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const phoneToUse = user?.phone || user?.phonePending || "";
-      const res = await fetch("startPhoneVerification", {
+      const res = await apiFetch("api/users/resendPhoneCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tempId, phone: phoneToUse }),
+        body: JSON.stringify({ tempId }),
       });
       const data = await res.json();
       if (!res.ok) return setMessage(data.error || "Erro ao reenviar código SMS");
-      setMessage("Código SMS reenviado (simulado)");
+      setMessage("Código SMS reenviado com sucesso!");
       setPhoneCooldown(60);
       try {
         const pendingRaw = sessionStorage.getItem('pendingRegistration');
         const pending = pendingRaw ? JSON.parse(pendingRaw) : {};
         pending.tempId = tempId;
-        pending.phone = phoneToUse || pending.phone;
+        pending.phone = user?.phone || user?.phonePending || pending.phone;
         pending.phoneSentAt = Date.now();
         sessionStorage.setItem('pendingRegistration', JSON.stringify(pending));
       } catch (e) {}

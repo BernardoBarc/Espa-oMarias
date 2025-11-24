@@ -549,6 +549,67 @@ router.post('/startPhoneVerification', async (req, res) => {
   }
 });
 
+// Reenviar código de verificação de telefone
+router.post('/resendPhoneCode', async (req, res) => {
+  const { tempId } = req.body;
+  
+  console.log('📱 [PRODUCTION] Reenviando código SMS para tempId:', tempId);
+  
+  if (!tempId) {
+    return res.status(400).json({ error: 'TempId obrigatório' });
+  }
+
+  // Detectar tempIds simulados (para usuários já existentes)
+  if (tempId.startsWith('simulated_')) {
+    console.log('📱 [PRODUCTION] TempId simulado detectado:', tempId);
+    return res.json({ ok: true, tempId: tempId });
+  }
+
+  try {
+    const user = await userService.getUser(tempId).catch(() => null);
+    if (!user) {
+      return res.status(400).json({ error: 'Registro temporário não encontrado' });
+    }
+
+    const phone = user.phonePending || user.phone;
+    if (!phone) {
+      return res.status(400).json({ error: 'Telefone não encontrado' });
+    }
+
+    console.log('📱 [PRODUCTION] Reenviando SMS para:', phone);
+    const smsResult = await sendVerificationCode(phone);
+    console.log('📱 [PRODUCTION] Resultado reenvio SMS:', smsResult);
+
+    if (!smsResult.success && !smsResult.fallback) {
+      return res.status(500).json({ 
+        error: 'Erro ao reenviar SMS. Tente novamente.' 
+      });
+    }
+
+    const code = smsResult.code;
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+
+    await userService.updateUser(user._id, { 
+      phoneCode: code, 
+      phoneCodeExpires: expires
+    });
+
+    // Log do código para desenvolvimento
+    if (process.env.NODE_ENV !== 'production' || smsResult.fallback) {
+      console.log('📱 [PRODUCTION] Código reenviado para', phone, ':', code);
+      console.log('📱 [PRODUCTION] SMS Status:', smsResult.success ? 'Enviado' : 'Simulado');
+    }
+
+    const resp = { ok: true, tempId: user._id.toString() };
+    if (process.env.NODE_ENV !== 'production') resp.debugCode = code;
+    return res.json(resp);
+
+  } catch (error) {
+    console.error('❌ [PRODUCTION] Erro ao reenviar código:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Confirmar código de telefone
 router.post('/confirmPhoneCode', async (req, res) => {
   let { phone, code, tempId } = req.body;
