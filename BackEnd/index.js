@@ -11,11 +11,6 @@ dotenv.config();
 // Importar smsService para inicialização
 import './services/smsService.js';
 
-console.log('🔍 [STARTUP] Verificando variáveis Twilio no startup:');
-console.log('🔍 [STARTUP] TWILIO_ACCOUNT_SID:', process.env.TWILIO_ACCOUNT_SID ? 'CONFIGURADO' : 'MISSING');
-console.log('🔍 [STARTUP] TWILIO_AUTH_TOKEN:', process.env.TWILIO_AUTH_TOKEN ? 'CONFIGURADO' : 'MISSING'); 
-console.log('🔍 [STARTUP] TWILIO_PHONE_NUMBER:', process.env.TWILIO_PHONE_NUMBER || 'MISSING');
-
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -71,7 +66,7 @@ app.get('/test-sms-config', (req, res) => {
   });
 });
 
-app.use('/', router);
+app.use('/api/users', router);
 
 app.use((err, req, res, next) => {
   console.error('❌ Erro no servidor:', err.stack);
