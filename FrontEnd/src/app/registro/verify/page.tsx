@@ -103,7 +103,7 @@ function VerifyPageContent() {
         return;
       }
 
-      const res = await fetch(apiUrl(`user/${tempId}`));
+      const res = await apiFetch(`api/users/user/${tempId}`);
       if (!res.ok) {
         setMessage("Não foi possível carregar o registro temporário. Reinicie o fluxo.");
         return;
@@ -231,7 +231,7 @@ function VerifyPageContent() {
     setMessage("");
     try {
       const emailToVerify = emailVal;
-      const res = await fetch("confirmEmailCode", {
+      const res = await apiFetch("api/users/confirmEmailCode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, code: emailCode }),
@@ -302,7 +302,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("startEmailVerification", {
+      const res = await apiFetch("api/users/startEmailVerification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tempId, email: emailVal, phone: user?.phone || "" }),
@@ -335,7 +335,7 @@ function VerifyPageContent() {
     let freshData = user;
     
     try {
-      const res = await fetch(`user/${tempId}`);
+      const res = await apiFetch(`api/users/user/${tempId}`);
       if (res.ok) {
         freshData = await res.json();
         setUser(freshData);
@@ -391,7 +391,7 @@ function VerifyPageContent() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("CriarUser", {
+      const res = await apiFetch("api/users/CriarUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         // usar valores finais verificados (servidor ou local)
