@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from '../../lib/api';
 
 export default function Login() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function Login() {
     console.log("📤 Dados sendo enviados:", formData);
     
     try {
-      const add = await fetch('loginUser', {
+      const add = await apiFetch('api/users/loginUser', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(formData)

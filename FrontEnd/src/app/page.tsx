@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { apiFetch } from '../lib/api';
 
 // Estilos CSS personalizados para animações
 const customStyles = `

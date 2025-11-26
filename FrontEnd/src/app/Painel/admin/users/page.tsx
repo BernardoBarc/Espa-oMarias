@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiFetch } from "../../../../lib/api";
 
 interface User {
   _id: string;
@@ -39,7 +40,7 @@ export default function Users() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("users");
+      const response = await apiFetch("api/users/users");
       if (!response.ok) throw new Error("Erro ao buscar usuários");
       const data = await response.json();
       setUsers(data);
@@ -302,7 +303,7 @@ export default function Users() {
       console.log('🔄 Criando usuário final com payload:', createPayload);
       console.log('📋 Verificações completadas - EmailTempId:', emailTempId, 'PhoneTempId:', phoneTempId);
       
-      const response = await fetch("CriarUser", {
+      const response = await apiFetch("api/users/CriarUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(createPayload),
@@ -316,7 +317,7 @@ export default function Users() {
       }
 
       if (form.role !== 'client') {
-        const updateResponse = await fetch(`atualizarUser/${data._id}`, {
+        const updateResponse = await apiFetch(`api/users/atualizarUser/${data._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role: form.role }),

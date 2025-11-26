@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "../../../../lib/api";
 
 interface Adicional {
   nome: string;
@@ -74,7 +75,7 @@ export default function AdminServicos() {
 
   const fetchServicos = async () => {
     try {
-      const response = await fetch("servicos");
+      const response = await apiFetch("api/users/servicos");
       if (!response.ok) throw new Error("Erro ao buscar serviços");
       const data = await response.json();
       setServicos(data);
@@ -112,14 +113,14 @@ export default function AdminServicos() {
       let response;
       if (editId) {
         // Atualizar serviço existente
-        response = await fetch(`servicos/${editId}`, {
+        response = await apiFetch(`api/users/servicos/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
       } else {
         // Criar novo serviço
-        response = await fetch("servicos", {
+        response = await apiFetch("api/users/servicos", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),

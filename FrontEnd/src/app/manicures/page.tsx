@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { apiFetch } from '../../lib/api';
 
 interface Manicure {
 	_id: string;
@@ -23,7 +24,7 @@ export default function Manicures() {
 	const [dadosSalao, setDadosSalao] = useState<DadosSalao | null>(null);
 
 	useEffect(() => {
-		fetch("users")
+		apiFetch("api/users/users")
 			.then((res) => res.json())
 			.then((data) => {
 				const manicuresAndAdmins = data.filter(
@@ -32,7 +33,7 @@ export default function Manicures() {
 				console.log('manicures fetched:', manicuresAndAdmins);
 				setManicures(manicuresAndAdmins);
 			});
-		fetch("dados-salao")
+		apiFetch("api/users/dados-salao")
 			.then((res) => res.json())
 			.then((data) => setDadosSalao(data));
 	}, []);
