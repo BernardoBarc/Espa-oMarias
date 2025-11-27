@@ -86,6 +86,46 @@ app.get('/api/users/test', (req, res) => {
   });
 });
 
+// Debug endpoint para listar todas as rotas registradas
+app.get('/api/users/debug-routes', (req, res) => {
+  try {
+    console.log('🔍 [DEBUG] Listando rotas registradas...');
+    
+    // Informações básicas do Express
+    const routeInfo = {
+      status: 'OK',
+      message: 'Debug de rotas registradas',
+      timestamp: new Date().toISOString(),
+      express: {
+        version: 'unknown',
+        environment: process.env.NODE_ENV || 'development'
+      },
+      available_routes: [
+        'GET /health',
+        'GET /api/users/test',
+        'GET /api/users/debug-routes',
+        'GET /api/users/users',
+        'GET /api/users/dados-salao', 
+        'GET /api/users/servicos',
+        'GET /api/users/agendamentos',
+        'POST /api/users/CriarUser',
+        'POST /api/users/startPhoneVerification',
+        'POST /api/users/confirmPhoneCode'
+      ],
+      router_loaded: router ? 'YES' : 'NO'
+    };
+    
+    res.status(200).json(routeInfo);
+  } catch (error) {
+    console.error('❌ [DEBUG] Erro na rota debug:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      message: 'Erro ao listar rotas',
+      error: error.message
+    });
+  }
+});
+
 // SMS test endpoint
 app.get('/test-sms-config', (req, res) => {
   console.log('🔍 [TEST] Endpoint de teste SMS chamado');

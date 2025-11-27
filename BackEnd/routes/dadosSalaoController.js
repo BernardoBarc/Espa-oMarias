@@ -39,12 +39,22 @@ router.get('/dadosSalao', async (req, res) => {
 
 // Alias com hífen para compatibilidade front-end
 router.get('/dados-salao', async (req, res) => {
+    console.log('🏪 [DADOS-SALAO] Rota /dados-salao acessada');
+    console.log('🏪 [DADOS-SALAO] Headers:', req.headers);
+    console.log('🏪 [DADOS-SALAO] URL completa:', req.originalUrl);
+    console.log('🏪 [DADOS-SALAO] Parâmetros:', req.params);
+    
     try {
+        console.log('🏪 [DADOS-SALAO] Buscando dados no service...');
         const all = await dadosSalaoService.getAllDadosSalao();
+        console.log('🏪 [DADOS-SALAO] Dados encontrados:', all ? all.length : 0);
+        
         const result = (all && all.length > 0) ? normalizeDados(all[0]) : {};
+        console.log('🏪 [DADOS-SALAO] Resultado normalizado:', Object.keys(result));
+        
         return res.json(result);
     } catch (error) {
-        console.error('Erro em GET /dados-salao:', error);
+        console.error('❌ [DADOS-SALAO] Erro em GET /dados-salao:', error);
         res.status(500).json({ error: error.message });
     }
 });
