@@ -8,3 +8,5 @@ dist/
 build/
 .next/
 README.md
+DEPLOYMENT_GUIDE.md
+.env.example

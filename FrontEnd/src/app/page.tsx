@@ -106,11 +106,13 @@ export default function Inicio() {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const res = await fetch("dados-salao");
+        console.log('🏠 Homepage: Buscando dados do salão...');
+        const res = await apiFetch("api/users/dados-salao");
         const data = await res.json();
+        console.log('🏠 Homepage: Dados do salão recebidos:', data);
         setDadosSalao(data);
       } catch (err) {
-        console.error('Erro ao buscar dados do salão:', err);
+        console.error('❌ Homepage: Erro ao buscar dados do salão:', err);
       }
     };
 
