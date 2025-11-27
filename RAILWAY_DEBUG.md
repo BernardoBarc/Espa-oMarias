@@ -1,18 +1,36 @@
 # Deployment Instructions for Railway
 
-## ⚠️ Problema Identificado:
-- A rota `/api/users/dados-salao` não funciona no Railway (404/Cannot GET)
-- A rota `/api/users/test` funciona perfeitamente
-- Localmente TODAS as rotas funcionam
+## ✅ **PROBLEMA IDENTIFICADO E CONFIRMADO:**
 
-## 🔧 Possíveis Causas:
-1. **Cache do Railway**: Deploy antigo ainda ativo
-2. **Ordem de carregamento**: Alguma rota conflitante
-3. **Variáveis de ambiente**: Diferença entre local e produção
+### 🎯 **Diagnóstico dos Prints:**
+- **Railway Dashboard**: Último deploy = "Update .env.example" (3 min atrás)
+- **GitHub**: Último commit = "Mudanças nas rotas" (6 min atrás)
+- **Conclusão**: **Railway está rodando código ANTIGO!**
 
-## 🚀 Passos para Corrigir:
+### ❌ **Por que isso aconteceu:**
+1. **Auto-deploy não funcionou**: Railway não detectou o push automático
+2. **Webhook pode estar desabilitado**: Conexão GitHub→Railway falhou
+3. **Branch errada**: Railway pode estar olhando branch diferente
 
-### 1. Force Redeploy no Railway:
+## � **SOLUÇÕES OBRIGATÓRIAS (NESTA ORDEM):**
+
+### **1. FORCE REDEPLOY MANUAL no Railway:**
+```
+1. Vá em Railway Dashboard → Deployments
+2. Clique nos 3 pontos (...) do deployment "Update .env.example" 
+3. Clique em "Redeploy"
+4. OU clique no botão "Deploy Latest" se disponível
+```
+
+### **2. Verificar Configuração GitHub no Railway:**
+```
+1. Railway Dashboard → Settings → Source
+2. Verificar se está conectado ao repositório correto: BernardoBarc/EspacoMarias
+3. Verificar se está na branch: main
+4. Verificar se "Auto Deploy" está ENABLED
+```
+
+### **3. Force Push (se necessário):**
 ```bash
 # Opção 1: Via Dashboard
 - Vá em Railway Dashboard → Seu projeto → Deployments
