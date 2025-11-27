@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { ref } from 'process';
 import Servico from './Servico.js';
 
 const agendamentoSchema = new mongoose.Schema({
