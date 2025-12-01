@@ -2,7 +2,6 @@ import express from 'express';
 import userService from '../services/userService.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { sendVerificationCode } from '../services/smsService.js';
 import { sendEmailVerificationCode, sendPasswordResetCode, sendEmail } from '../services/emailService.js';
 
@@ -1029,113 +1028,72 @@ router.post('/send-contact-email', async (req, res) => {
     if (!emailDestino) {
       return res.status(500).json({ error: 'Email do salão não configurado. Entre em contato pelo telefone.' });
     }
-    
-    // Verificar se as variáveis de email estão configuradas
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      // Em desenvolvimento, simular envio de email
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('📧 SIMULAÇÃO DE ENVIO DE EMAIL:');
-        console.log('================================');
-        console.log(`Para: ${emailDestino}`);
-        console.log(`De: ${email} (${nome})`);
-        console.log(`Assunto: [CONTATO SITE] ${assunto}`);
-        console.log('Mensagem:', mensagem);
-        console.log('================================');
-      }
-      
-      return res.json({ 
-        ok: true, 
-        message: 'Mensagem enviada com sucesso! Entraremos em contato em breve.',
-        debug: process.env.NODE_ENV !== 'production' ? {
-          emailDestino,
-          simulacao: true,
-          motivo: 'Variáveis EMAIL_USER/EMAIL_PASS não configuradas'
-        } : undefined
-      });
-    }
-    
-    // Verificar se as credenciais de email estão configuradas
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || 
-        process.env.EMAIL_USER === 'seuemail@gmail.com' || 
-        process.env.EMAIL_PASS === 'sua_senha_de_app') {
-      
-      console.log('📧 Simulando envio de email (credenciais não configuradas):');
-      console.log(`De: ${nome} (${email})`);
-      console.log(`Assunto: [CONTATO SITE] ${assunto}`);
-      console.log(`Mensagem: ${mensagem}`);
-      
-      return res.json({
-        ok: true,
-        message: 'Mensagem enviada com sucesso! Entraremos em contato em breve.',
-        debug: process.env.NODE_ENV !== 'production' ? {
-          simulacao: true,
-          motivo: 'Credenciais de email não configuradas'
-        } : undefined
-      });
-    }
-    
-    // Configurar transporter do nodemailer
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
 
-    const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Espaço Marias'}" <${process.env.EMAIL_USER}>`,
-      to: emailDestino,
-      replyTo: email,
-      subject: `[CONTATO SITE] ${assunto}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">Nova mensagem do site</h2>
-          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
-            <p><strong>Nome:</strong> ${nome}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Assunto:</strong> ${assunto}</p>
-            <p><strong>Mensagem:</strong></p>
-            <div style="background: white; padding: 15px; border-left: 4px solid #333; margin-top: 10px;">
+    // Preparar conteúdo do email de contato
+    const assuntoCompleto = `[CONTATO SITE] ${assunto}`;
+    
+    const textoSimples = `Nova mensagem do formulário de contato:
+
+Nome: ${nome}
+Email: ${email}
+Assunto: ${assunto}
+
+Mensagem:
+${mensagem}
+
+---
+Esta mensagem foi enviada através do formulário de contato do site.`;
+
+    const htmlFormatado = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #D63384; margin: 0;">Espaço Marias</h1>
+          <p style="color: #6c757d; margin: 5px 0;">Formulário de Contato</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+          <h2 style="color: #495057; margin-bottom: 20px;">Nova mensagem do site</h2>
+          
+          <div style="background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <p style="margin: 10px 0;"><strong style="color: #D63384;">Nome:</strong> ${nome}</p>
+            <p style="margin: 10px 0;"><strong style="color: #D63384;">Email:</strong> <a href="mailto:${email}" style="color: #495057;">${email}</a></p>
+            <p style="margin: 10px 0;"><strong style="color: #D63384;">Assunto:</strong> ${assunto}</p>
+          </div>
+          
+          <div style="background-color: #fff; padding: 20px; border-radius: 8px; border-left: 4px solid #D63384;">
+            <p style="margin: 0 0 10px 0;"><strong style="color: #D63384;">Mensagem:</strong></p>
+            <div style="color: #495057; line-height: 1.6;">
               ${mensagem.replace(/\n/g, '<br>')}
             </div>
           </div>
-          <p style="color: #666; font-size: 12px; margin-top: 20px;">
-            Esta mensagem foi enviada através do formulário de contato do site.
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+          <p style="color: #6c757d; font-size: 12px;">
+            Esta mensagem foi enviada através do formulário de contato do site.<br>
+            Responda diretamente para o email: ${email}
           </p>
         </div>
-      `
-    };
+      </div>
+    `;
 
     // Enviar email usando o emailService
-    const resultado = await sendEmail(emailDestino, `[CONTATO SITE] ${assunto}`, `Nome: ${nome}\nEmail: ${email}\nMensagem: ${mensagem}`);
+    const resultado = await sendEmail(emailDestino, assuntoCompleto, textoSimples, htmlFormatado);
+    
+    console.log('📧 Formulário de contato - Status:', resultado.success ? 'Enviado' : 'Simulado');
     
     res.json({
       ok: true,
-      message: 'Mensagem enviada com sucesso! Entraremos em contato em breve.'
+      message: 'Mensagem enviada com sucesso! Entraremos em contato em breve.',
+      debug: process.env.NODE_ENV !== 'production' ? {
+        emailDestino,
+        status: resultado.success ? 'enviado' : 'simulado',
+        simulated: resultado.simulated || false
+      } : undefined
     });
     
   } catch (error) {
     console.error('Erro ao enviar email de contato:', error);
-    
-    // Fallback para simulação em caso de qualquer erro de email
-    console.log('📧 Simulando envio de email (erro no servidor de email):');
-    console.log(`De: ${nome} (${email})`);
-    console.log(`Assunto: [CONTATO SITE] ${assunto}`);
-    console.log(`Mensagem: ${mensagem}`);
-    
-    return res.json({
-      ok: true,
-      message: 'Mensagem recebida! Entraremos em contato em breve.',
-      debug: process.env.NODE_ENV !== 'production' ? {
-        simulacao: true,
-        motivo: 'Erro no servidor de email',
-        erro: error.message
-      } : undefined
-    });
     
     res.status(500).json({ error: 'Erro interno do servidor. Tente novamente.' });
   }
