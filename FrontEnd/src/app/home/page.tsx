@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from '../../lib/api';
 
 interface DadosSalao {
   telefone?: string;
@@ -41,7 +42,7 @@ export default function Home() {
 
   const fetchDados = async () => {
     try {
-      const res = await fetch("dados-salao");
+      const res = await apiFetch("dados-salao");
       const data = await res.json();
       setDadosSalao(data);
     } catch (err) {

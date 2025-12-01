@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { apiFetch } from '../../lib/api';
 
 interface DadosSalao {
   telefone?: string;
@@ -25,7 +26,7 @@ export default function Contato() {
 
   const fetchDados = async () => {
     try {
-      const res = await fetch("dados-salao");
+      const res = await apiFetch("dados-salao");
       const data = await res.json();
       setDadosSalao(data);
     } catch (err) {
@@ -85,7 +86,7 @@ export default function Contato() {
 
     setLoading(true);
     try {
-      const response = await fetch('send-contact-email', {
+      const response = await apiFetch('send-contact-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

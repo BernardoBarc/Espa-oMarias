@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { apiFetch } from '../../../../lib/api';
 
 interface Imagem {
   url: string;
@@ -41,7 +42,7 @@ export default function DadosSalaoAdmin() {
   const fetchDadosSalao = async () => {
     setLoading(true);
     try {
-      const res = await fetch("dados-salao");
+      const res = await apiFetch("dados-salao");
       const data = await res.json();
       const payload = Array.isArray(data) ? (data.length > 0 ? data[0] : {}) : (data || {});
       console.log('fetchDadosSalao payload:', payload);
@@ -201,7 +202,7 @@ export default function DadosSalaoAdmin() {
     try {
       const payload = { ...dados };
       console.log('enviando dados do salao:', payload);
-      const response = await fetch("atualizarDadosSalao", {
+      const response = await apiFetch("atualizarDadosSalao", {
         method: dados._id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
