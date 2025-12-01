@@ -12,7 +12,7 @@ const emailConfig = {
 };
 
 if (emailConfig.user && emailConfig.pass && emailConfig.from) {
-  transporter = nodemailer.createTransporter({
+  transporter = nodemailer.createTransport({
     service: emailConfig.service,
     auth: {
       user: emailConfig.user,
