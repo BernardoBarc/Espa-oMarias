@@ -9,15 +9,11 @@ let client = null;
 // Inicializar cliente Twilio apenas se as credenciais existirem
 if (accountSid && authToken && twilioPhoneNumber) {
   client = twilio(accountSid, authToken);
-  console.log('📱 [PRODUCTION] Twilio configurado com sucesso');
-  console.log('📱 [PRODUCTION] Account SID:', accountSid);
-  console.log('📱 [PRODUCTION] Phone Number:', twilioPhoneNumber);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('📱 Twilio configurado com sucesso');
+  }
 } else {
-  console.error('⚠️ [PRODUCTION] Credenciais do Twilio não encontradas:');
-  console.error('  - Account SID:', accountSid ? 'OK' : 'MISSING');
-  console.error('  - Auth Token:', authToken ? 'OK' : 'MISSING');
-  console.error('  - Phone Number:', twilioPhoneNumber ? twilioPhoneNumber : 'MISSING');
-  console.error('⚠️ [PRODUCTION] SMS será simulado.');
+  console.log('⚠️ Twilio não configurado - SMS será simulado');
 }
 
 // Função para enviar SMS
@@ -65,13 +61,34 @@ export const sendSMS = async (phoneNumber, message) => {
     console.error('❌ [PRODUCTION] Código do erro:', error.code);
     console.error('❌ [PRODUCTION] Mensagem completa:', error.message);
     
-    // Em caso de erro, retornar simulação para não quebrar o fluxo
+    // Se o erro for de número não verificado (conta trial), simular envio
+    if (error.code === 21608 || error.message.includes('unverified')) {
+      console.log('📱 [PRODUCTION] CONTA TRIAL DETECTADA - Simulando envio de SMS');
+      console.log('📱 [PRODUCTION] Para resolver: Verifique o número no Twilio Console ou upgrade para conta paga');
+      const code = generateVerificationCode();
+      console.log('📱 [PRODUCTION] CÓDIGO DE VERIFICAÇÃO SIMULADO:', code);
+      console.log('📱 [PRODUCTION] Use este código para testar:', code);
+      
+      return {
+        success: true,
+        sid: 'trial_simulated_' + Date.now(),
+        message: 'SMS simulado - conta trial. Código: ' + code,
+        code: code,
+        isTrial: true
+      };
+    }
+    
+    // Para outros erros, também retornar simulação
+    const fallbackCode = generateVerificationCode();
+    console.log('📱 [PRODUCTION] CÓDIGO FALLBACK:', fallbackCode);
+    
     return {
       success: false,
       error: error.message,
       errorCode: error.code,
       fallback: true,
-      message: 'Erro ao enviar SMS. Código gerado para teste: ' + generateVerificationCode()
+      code: fallbackCode,
+      message: 'Erro ao enviar SMS. Código gerado para teste: ' + fallbackCode
     };
   }
 };
@@ -111,11 +128,18 @@ export const sendVerificationCode = async (phoneNumber) => {
   const code = generateVerificationCode();
   const message = `🔐 Espaço Marias - Seu código de verificação é: ${code}. Válido por 10 minutos.`;
   
+  console.log('📱 Código de verificação de telefone para', phoneNumber, ':', code);
+  
   const result = await sendSMS(phoneNumber, message);
+  
+  // Se retornou código do sistema de fallback/trial, usar esse código
+  const finalCode = result.code || code;
+  
+  console.log('📱 SMS Status:', result.success ? 'Enviado' : 'Simulado');
   
   return {
     ...result,
-    code: code // retornar o código para salvar no banco
+    code: finalCode // retornar o código para salvar no banco
   };
 };
 

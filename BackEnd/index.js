@@ -47,13 +47,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Debug middleware para logs de requisições
-app.use((req, res, next) => {
-  console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
-  console.log('📋 Headers:', JSON.stringify(req.headers, null, 2));
-  console.log('🔍 Origin:', req.headers.origin);
-  next();
-});
+// Debug middleware - apenas para desenvolvimento
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`🌐 ${new Date().toISOString()} - ${req.method} ${req.path}`);
+    console.log('🔍 Origin:', req.headers.origin);
+    next();
+  });
+}
 
 // aumentar limites para permitir imagens em base64 maiores
 app.use(express.json({ limit: '50mb' }));
@@ -143,7 +144,12 @@ app.get('/test-sms-config', (req, res) => {
     status: 'OK',
     message: 'Teste de configuração SMS',
     config: config,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    instructions: {
+      trial_account: 'Se estiver usando conta trial do Twilio, apenas números verificados podem receber SMS',
+      verify_number: 'Vá em console.twilio.com → Phone Numbers → Manage → Verified Caller IDs',
+      alternative: 'Ou use os códigos simulados que aparecem nos logs do Railway'
+    }
   });
 });
 
