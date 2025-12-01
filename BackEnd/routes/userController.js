@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { sendVerificationCode } from '../services/smsService.js';
+import { sendEmailVerificationCode, sendPasswordResetCode } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -285,6 +286,9 @@ router.post('/forgot-password', async (req, res) => {
       resetCode: String(resetCode),
       resetCodeExpires: resetExpires
     });
+
+    // Enviar código por email
+    const emailResult = await sendPasswordResetCode(email, resetCode);
 
     // Em produção, enviar email real aqui
     if (process.env.NODE_ENV !== 'production') {
@@ -741,6 +745,9 @@ router.post('/startEmailVerification', async (req, res) => {
           emailPending: email
         });
         
+        // Enviar código por email
+        const emailResult = await sendEmailVerificationCode(email);
+        
         // Log do código para desenvolvimento
         if (process.env.NODE_ENV !== 'production') {
           console.log('📧 Código de verificação de email para', email, ':', code, '(tempId update)');
@@ -767,6 +774,9 @@ router.post('/startEmailVerification', async (req, res) => {
         emailPending: email 
       });
       
+      // Enviar código por email
+      const emailResult = await sendEmailVerificationCode(email);
+      
       // Log do código para desenvolvimento
       if (process.env.NODE_ENV !== 'production') {
         console.log('📧 Código de verificação de email para', email, ':', code, '(reutilizado)');
@@ -792,6 +802,9 @@ router.post('/startEmailVerification', async (req, res) => {
       emailCodeExpires: expires, 
       phonePending: phone || '' 
     });
+    
+    // Enviar código por email
+    const emailResult = await sendEmailVerificationCode(email);
     
     // Log do código para desenvolvimento
     if (process.env.NODE_ENV !== 'production') {

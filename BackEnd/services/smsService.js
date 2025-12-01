@@ -18,28 +18,20 @@ if (accountSid && authToken && twilioPhoneNumber) {
 
 // Função para enviar SMS
 export const sendSMS = async (phoneNumber, message) => {
-  console.log('📱 [PRODUCTION] sendSMS chamada com:', { phoneNumber, messageLength: message.length });
-  
   try {
     // Se não tem cliente configurado, simular envio
     if (!client) {
-      console.log('📱 [PRODUCTION] SMS SIMULADO para', phoneNumber, ':', message);
-      console.log('📱 [PRODUCTION] Motivo: Cliente Twilio não configurado');
+      const code = generateVerificationCode();
       return {
         success: true,
         sid: 'simulated_' + Date.now(),
-        message: 'SMS simulado com sucesso'
+        message: 'SMS simulado com sucesso',
+        code: code
       };
     }
 
     // Formatar número para padrão internacional (+55)
     const formattedPhone = formatPhoneForTwilio(phoneNumber);
-    
-    console.log('📱 [PRODUCTION] Enviando SMS real para:', formattedPhone);
-    console.log('📱 [PRODUCTION] Número original:', phoneNumber);
-    console.log('📱 [PRODUCTION] Número formatado:', formattedPhone);
-    console.log('📱 [PRODUCTION] Mensagem:', message);
-    console.log('📱 [PRODUCTION] De:', twilioPhoneNumber);
     
     const message_result = await client.messages.create({
       body: message,
@@ -47,9 +39,6 @@ export const sendSMS = async (phoneNumber, message) => {
       to: formattedPhone
     });
 
-    console.log('✅ [PRODUCTION] SMS enviado com sucesso:', message_result.sid);
-    console.log('✅ [PRODUCTION] Status:', message_result.status);
-    
     return {
       success: true,
       sid: message_result.sid,
@@ -57,22 +46,16 @@ export const sendSMS = async (phoneNumber, message) => {
     };
     
   } catch (error) {
-    console.error('❌ [PRODUCTION] Erro ao enviar SMS:', error);
-    console.error('❌ [PRODUCTION] Código do erro:', error.code);
-    console.error('❌ [PRODUCTION] Mensagem completa:', error.message);
+    console.error('❌ Erro ao enviar SMS:', error.message);
     
     // Se o erro for de número não verificado (conta trial), simular envio
     if (error.code === 21608 || error.message.includes('unverified')) {
-      console.log('📱 [PRODUCTION] CONTA TRIAL DETECTADA - Simulando envio de SMS');
-      console.log('📱 [PRODUCTION] Para resolver: Verifique o número no Twilio Console ou upgrade para conta paga');
       const code = generateVerificationCode();
-      console.log('📱 [PRODUCTION] CÓDIGO DE VERIFICAÇÃO SIMULADO:', code);
-      console.log('📱 [PRODUCTION] Use este código para testar:', code);
       
       return {
         success: true,
         sid: 'trial_simulated_' + Date.now(),
-        message: 'SMS simulado - conta trial. Código: ' + code,
+        message: 'SMS simulado - conta trial',
         code: code,
         isTrial: true
       };
@@ -80,7 +63,6 @@ export const sendSMS = async (phoneNumber, message) => {
     
     // Para outros erros, também retornar simulação
     const fallbackCode = generateVerificationCode();
-    console.log('📱 [PRODUCTION] CÓDIGO FALLBACK:', fallbackCode);
     
     return {
       success: false,
@@ -88,7 +70,7 @@ export const sendSMS = async (phoneNumber, message) => {
       errorCode: error.code,
       fallback: true,
       code: fallbackCode,
-      message: 'Erro ao enviar SMS. Código gerado para teste: ' + fallbackCode
+      message: 'Erro ao enviar SMS. Código gerado para teste'
     };
   }
 };
