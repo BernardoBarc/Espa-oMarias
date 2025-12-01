@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import { sendVerificationCode } from '../services/smsService.js';
-import { sendEmailVerificationCode, sendPasswordResetCode } from '../services/emailService.js';
+import { sendEmailVerificationCode, sendPasswordResetCode, sendEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -1110,8 +1110,8 @@ router.post('/send-contact-email', async (req, res) => {
       `
     };
 
-    // Tentar enviar o email
-    await transporter.sendMail(mailOptions);
+    // Enviar email usando o emailService
+    const resultado = await sendEmail(emailDestino, `[CONTATO SITE] ${assunto}`, `Nome: ${nome}\nEmail: ${email}\nMensagem: ${mensagem}`);
     
     res.json({
       ok: true,
