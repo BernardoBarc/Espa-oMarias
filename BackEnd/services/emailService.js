@@ -24,7 +24,10 @@ if (emailConfig.user && emailConfig.pass && emailConfig.from) {
     auth: {
       user: emailConfig.user,
       pass: emailConfig.pass
-    }
+    },
+    connectionTimeout: 60000, // 60 segundos
+    greetingTimeout: 30000,   // 30 segundos
+    socketTimeout: 60000      // 60 segundos
   });
 
   console.log('✅ Email service configurado com sucesso');
@@ -63,10 +66,17 @@ export const sendEmail = async (to, subject, text, html = null) => {
 
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error.message);
+    console.error('❌ Erro detalhado:', {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode
+    });
     
     return {
       success: false,
       error: error.message,
+      errorCode: error.code,
       fallback: true,
       message: 'Erro ao enviar email. Usando simulação'
     };
