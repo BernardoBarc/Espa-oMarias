@@ -8,17 +8,34 @@ const emailConfig = {
   service: process.env.EMAIL_SERVICE || 'gmail',
   user: process.env.EMAIL_USER,
   pass: process.env.EMAIL_PASS,
-  from: process.env.EMAIL_FROM
+  from: process.env.EMAIL_FROM,
+  sendgridApiKey: process.env.SENDGRID_API_KEY
 };
 
 console.log('📧 Config debug:', {
   service: emailConfig.service,
   user: emailConfig.user ? 'CONFIGURADO' : 'FALTANDO',
   pass: emailConfig.pass ? 'CONFIGURADO' : 'FALTANDO',
-  from: emailConfig.from ? 'CONFIGURADO' : 'FALTANDO'
+  from: emailConfig.from ? 'CONFIGURADO' : 'FALTANDO',
+  sendgridApiKey: emailConfig.sendgridApiKey ? 'CONFIGURADO' : 'FALTANDO'
 });
 
-if (emailConfig.user && emailConfig.pass && emailConfig.from) {
+// Configurar transporter baseado no serviço
+if (emailConfig.service === 'sendgrid' && emailConfig.sendgridApiKey && emailConfig.from) {
+  // Configuração SendGrid
+  transporter = nodemailer.createTransport({
+    host: 'smtp.sendgrid.net',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'apikey',
+      pass: emailConfig.sendgridApiKey
+    }
+  });
+
+  console.log('✅ SendGrid email service configurado com sucesso');
+} else if (emailConfig.user && emailConfig.pass && emailConfig.from) {
+  // Configuração Gmail (fallback)
   transporter = nodemailer.createTransport({
     service: emailConfig.service,
     auth: {
@@ -30,7 +47,7 @@ if (emailConfig.user && emailConfig.pass && emailConfig.from) {
     socketTimeout: 60000      // 60 segundos
   });
 
-  console.log('✅ Email service configurado com sucesso');
+  console.log('✅ Gmail email service configurado com sucesso');
 } else {
   console.log('❌ Email service não configurado - emails serão simulados');
 }
