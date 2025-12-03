@@ -11,6 +11,13 @@ const emailConfig = {
   from: process.env.EMAIL_FROM
 };
 
+console.log('📧 Config debug:', {
+  service: emailConfig.service,
+  user: emailConfig.user ? 'CONFIGURADO' : 'FALTANDO',
+  pass: emailConfig.pass ? 'CONFIGURADO' : 'FALTANDO',
+  from: emailConfig.from ? 'CONFIGURADO' : 'FALTANDO'
+});
+
 if (emailConfig.user && emailConfig.pass && emailConfig.from) {
   transporter = nodemailer.createTransport({
     service: emailConfig.service,
@@ -20,11 +27,9 @@ if (emailConfig.user && emailConfig.pass && emailConfig.from) {
     }
   });
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('📧 Email service configurado com sucesso');
-  }
+  console.log('✅ Email service configurado com sucesso');
 } else {
-  console.log('⚠️ Email service não configurado - emails serão simulados');
+  console.log('❌ Email service não configurado - emails serão simulados');
 }
 
 // Função para enviar email

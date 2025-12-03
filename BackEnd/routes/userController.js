@@ -720,7 +720,6 @@ router.post('/startEmailVerification', async (req, res) => {
       return res.json({ ok: true, tempId: simulatedTempId });
     }
     
-    const code = generateCode();
     const expires = new Date(Date.now() + 10 * 60 * 1000);
 
     const existingByEmail = await userService.findByEmail(email);
@@ -738,14 +737,18 @@ router.post('/startEmailVerification', async (req, res) => {
       }
       
       if (user) {
+        // Enviar código por email PRIMEIRO para obter o código correto
+        console.log('📧 Enviando código de verificação por email para:', email);
+        const emailResult = await sendEmailVerificationCode(email);
+        console.log('📧 Resultado do envio:', emailResult);
+        
+        const code = emailResult.code; // Usar o código do emailService
+        
         await userService.updateUser(user._id, { 
           emailCode: code, 
           emailCodeExpires: expires,
           emailPending: email
         });
-        
-        // Enviar código por email
-        const emailResult = await sendEmailVerificationCode(email);
         
         // Log do código para desenvolvimento
         if (process.env.NODE_ENV !== 'production') {
@@ -767,14 +770,18 @@ router.post('/startEmailVerification', async (req, res) => {
     ));
 
     if (existingTempUser) {
+      // Enviar código por email PRIMEIRO para obter o código correto
+      console.log('📧 Enviando código de verificação por email para:', email, '(reutilizado)');
+      const emailResult = await sendEmailVerificationCode(email);
+      console.log('📧 Resultado do envio:', emailResult);
+      
+      const code = emailResult.code; // Usar o código do emailService
+      
       await userService.updateUser(existingTempUser._id, { 
         emailCode: code, 
         emailCodeExpires: expires, 
         emailPending: email 
       });
-      
-      // Enviar código por email
-      const emailResult = await sendEmailVerificationCode(email);
       
       // Log do código para desenvolvimento
       if (process.env.NODE_ENV !== 'production') {
@@ -795,6 +802,13 @@ router.post('/startEmailVerification', async (req, res) => {
       createdAt: new Date()
     });
     
+    // Enviar código por email PRIMEIRO para obter o código correto
+    console.log('📧 Enviando código de verificação por email para:', email, '(novo temp)');
+    const emailResult = await sendEmailVerificationCode(email);
+    console.log('📧 Resultado do envio:', emailResult);
+    
+    const code = emailResult.code; // Usar o código do emailService
+    
     await userService.updateUser(temp._id, { 
       emailPending: email, 
       emailCode: code, 
@@ -802,12 +816,9 @@ router.post('/startEmailVerification', async (req, res) => {
       phonePending: phone || '' 
     });
     
-    // Enviar código por email
-    const emailResult = await sendEmailVerificationCode(email);
-    
     // Log do código para desenvolvimento
     if (process.env.NODE_ENV !== 'production') {
-      console.log('📧 Código de verificação de email para', email, ':', code,);
+      console.log('📧 Código de verificação de email para', email, ':', code);
     }
     
     const resp = { ok: true, tempId: temp._id.toString() };
