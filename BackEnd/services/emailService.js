@@ -256,7 +256,7 @@ export const sendAppointmentNotification = async (email, appointmentDetails) => 
   return result;
 };
 
-// Exportar funções
+
 export default { 
   sendEmail, 
   sendEmailVerificationCode, 
