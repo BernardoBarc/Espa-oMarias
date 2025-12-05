@@ -12,12 +12,12 @@ const emailConfig = {
   sendgridApiKey: process.env.SENDGRID_API_KEY
 };
 
-console.log('📧 Config debug:', {
+console.log('📧 Configuração de email:', {
   service: emailConfig.service,
-  user: emailConfig.user ? 'CONFIGURADO' : 'FALTANDO',
-  pass: emailConfig.pass ? 'CONFIGURADO' : 'FALTANDO',
-  from: emailConfig.from ? 'CONFIGURADO' : 'FALTANDO',
-  sendgridApiKey: emailConfig.sendgridApiKey ? 'CONFIGURADO' : 'FALTANDO'
+  user: emailConfig.user ? 'Configurado' : 'Faltando',
+  pass: emailConfig.pass ? 'Configurado' : 'Faltando',
+  from: emailConfig.from ? 'Configurado' : 'Faltando',
+  sendgridApiKey: emailConfig.sendgridApiKey ? 'Configurado' : 'Faltando'
 });
 
 // Configurar transporter baseado no serviço
@@ -32,24 +32,31 @@ if (emailConfig.service === 'sendgrid' && emailConfig.sendgridApiKey && emailCon
       pass: emailConfig.sendgridApiKey
     }
   });
-
-  console.log('✅ SendGrid email service configurado com sucesso');
-} else if (emailConfig.user && emailConfig.pass && emailConfig.from) {
-  // Configuração Gmail (fallback)
+  console.log('✅ SendGrid configurado com sucesso');
+} else if (emailConfig.service === 'gmail' && emailConfig.user && emailConfig.pass && emailConfig.from) {
+  // Configuração Gmail
   transporter = nodemailer.createTransport({
-    service: emailConfig.service,
+    service: 'gmail',
     auth: {
       user: emailConfig.user,
       pass: emailConfig.pass
     },
-    connectionTimeout: 60000, // 60 segundos
-    greetingTimeout: 30000,   // 30 segundos
-    socketTimeout: 60000      // 60 segundos
+    connectionTimeout: 60000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
+    secure: true,
+    tls: {
+      rejectUnauthorized: false
+    }
   });
-
-  console.log('✅ Gmail email service configurado com sucesso');
+  console.log('✅ Gmail configurado com sucesso');
 } else {
-  console.log('❌ Email service não configurado - emails serão simulados');
+  console.log('⚠️  Email não configurado - Modo simulação ativado');
+  console.log('   Para usar email real, configure:');
+  console.log('   - EMAIL_SERVICE: "gmail"');
+  console.log('   - EMAIL_USER: seu email Gmail');
+  console.log('   - EMAIL_PASS: senha de app do Gmail');
+  console.log('   - EMAIL_FROM: email do remetente');
 }
 
 // Função para enviar email
@@ -57,6 +64,7 @@ export const sendEmail = async (to, subject, text, html = null) => {
   try {
     // Se não tem transporter configurado, simular envio
     if (!transporter) {
+      console.log('📧 [SIMULAÇÃO] Enviando email para:', to);
       return {
         success: true,
         messageId: 'simulated_' + Date.now(),
@@ -70,10 +78,17 @@ export const sendEmail = async (to, subject, text, html = null) => {
       to: to,
       subject: subject,
       text: text,
-      html: html || text
+      html: html || text,
+      replyTo: emailConfig.from
     };
 
+    console.log(`📤 Enviando email para: ${to}`);
+    console.log(`📝 Assunto: ${subject}`);
+    
     const result = await transporter.sendMail(mailOptions);
+    
+    console.log(`✅ Email enviado com sucesso! Message ID: ${result.messageId}`);
+    console.log(`✅ Resposta do servidor: ${result.response}`);
 
     return {
       success: true,
@@ -83,19 +98,28 @@ export const sendEmail = async (to, subject, text, html = null) => {
 
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error.message);
-    console.error('❌ Erro detalhado:', {
+    console.error('❌ Detalhes do erro:', {
       code: error.code,
       command: error.command,
       response: error.response,
       responseCode: error.responseCode
     });
     
+    // Tentar novamente se for um erro temporário
+    if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+      console.log('🔄 Tentando reconexão...');
+      return {
+        success: false,
+        error: 'Erro de conexão. Tente novamente.',
+        retry: true
+      };
+    }
+    
     return {
       success: false,
       error: error.message,
       errorCode: error.code,
-      fallback: true,
-      message: 'Erro ao enviar email. Usando simulação'
+      message: 'Erro ao enviar email'
     };
   }
 };
@@ -136,18 +160,14 @@ export const sendEmailVerificationCode = async (email) => {
     </div>
   `;
 
-  console.log('📧 Código de verificação de email para', email, ':', code);
+  console.log(`📧 Gerando código ${code} para ${email}`);
 
   const result = await sendEmail(email, subject, text, html);
 
-  // Se retornou código do sistema de fallback, usar esse código
-  const finalCode = result.code || code;
-
-  console.log('📧 Email Status:', result.success ? 'Enviado' : 'Simulado');
-
+  // Adicionar código ao resultado
   return {
     ...result,
-    code: finalCode // retornar o código para salvar no banco
+    code: code
   };
 };
 
@@ -184,18 +204,63 @@ export const sendPasswordResetCode = async (email, code) => {
     </div>
   `;
 
-  console.log('🔐 Código de recuperação de senha para', email, ':', code);
+  console.log(`🔐 Enviando código de recuperação ${code} para ${email}`);
 
   const result = await sendEmail(email, subject, text, html);
-
-  console.log('📧 Email Status:', result.success ? 'Enviado' : 'Simulado');
 
   return result;
 };
 
+// Função para enviar notificação de agendamento
+export const sendAppointmentNotification = async (email, appointmentDetails) => {
+  const subject = '📅 Espaço Marias - Confirmação de Agendamento';
+  const text = `Olá! Seu agendamento foi confirmado para ${appointmentDetails.date} às ${appointmentDetails.time}.`;
+  
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #D63384; margin: 0;">Espaço Marias</h1>
+        <p style="color: #6c757d; margin: 5px 0;">Seu salão de beleza</p>
+      </div>
+      
+      <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px;">
+        <h2 style="color: #495057; margin-bottom: 20px; text-align: center;">Agendamento Confirmado</h2>
+        
+        <div style="background-color: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #dee2e6;">
+          <h3 style="color: #D63384; margin-top: 0;">Detalhes do Agendamento</h3>
+          <p><strong>Data:</strong> ${appointmentDetails.date}</p>
+          <p><strong>Horário:</strong> ${appointmentDetails.time}</p>
+          <p><strong>Serviço:</strong> ${appointmentDetails.service}</p>
+          <p><strong>Profissional:</strong> ${appointmentDetails.professional}</p>
+          ${appointmentDetails.notes ? `<p><strong>Observações:</strong> ${appointmentDetails.notes}</p>` : ''}
+        </div>
+        
+        <p style="color: #6c757d; text-align: center;">
+          Chegue 10 minutos antes do horário marcado.<br>
+          Em caso de cancelamento, avise com 24h de antecedência.
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+        <p style="color: #6c757d; font-size: 12px;">
+          Para cancelar ou reagendar, entre em contato conosco.
+        </p>
+      </div>
+    </div>
+  `;
+
+  console.log(`📅 Enviando confirmação de agendamento para ${email}`);
+
+  const result = await sendEmail(email, subject, text, html);
+
+  return result;
+};
+
+// Exportar funções
 export default { 
   sendEmail, 
   sendEmailVerificationCode, 
   sendPasswordResetCode,
+  sendAppointmentNotification,
   generateEmailCode 
 };
