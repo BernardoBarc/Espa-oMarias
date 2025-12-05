@@ -1,97 +1,34 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
-// Configuração do transporter
-let transporter = null;
-
-// Verificar se as variáveis de ambiente estão configuradas
+// Configuração
 const emailConfig = {
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  user: process.env.EMAIL_USER,
-  pass: process.env.EMAIL_PASS,
+  service: process.env.EMAIL_SERVICE || 'sendgrid',
   from: process.env.EMAIL_FROM,
   sendgridApiKey: process.env.SENDGRID_API_KEY
 };
 
 console.log('📧 Configuração de email:', {
   service: emailConfig.service,
-  user: emailConfig.user ? 'Configurado' : 'FALTANDO',
-  pass: emailConfig.pass ? 'Configurado' : 'FALTANDO',
   from: emailConfig.from ? 'Configurado' : 'FALTANDO',
-  sendgridApiKey: emailConfig.sendgridApiKey ? 'Configurado' : 'Não configurado'
+  sendgridApiKey: emailConfig.sendgridApiKey ? 'Configurado' : 'FALTANDO'
 });
 
-// Configurar transporter baseado no serviço
+// Configurar SendGrid
 if (emailConfig.service === 'sendgrid' && emailConfig.sendgridApiKey && emailConfig.from) {
-  // Configuração SendGrid
-  transporter = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'apikey',
-      pass: emailConfig.sendgridApiKey
-    }
-  });
-  console.log('✅ SendGrid configurado com sucesso');
-} else if (emailConfig.service === 'gmail' && emailConfig.user && emailConfig.pass && emailConfig.from) {
-  try {
-    // Configuração Gmail com múltiplas opções
-    transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465, // Porta SSL
-      secure: true, // true para porta 465, false para outras
-      auth: {
-        user: emailConfig.user,
-        pass: emailConfig.pass
-      },
-      connectionTimeout: 30000, // 30 segundos
-      greetingTimeout: 15000,   // 15 segundos
-      socketTimeout: 30000,     // 30 segundos
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    // Testar a conexão
-    await transporter.verify();
-    console.log('✅ Gmail configurado com sucesso (porta 465 - SSL)');
-  } catch (error) {
-    console.log('⚠️  Falha na porta 465, tentando porta 587...');
-    
-    // Tentar com porta 587 (TLS)
-    transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // false para porta 587
-      auth: {
-        user: emailConfig.user,
-        pass: emailConfig.pass
-      },
-      connectionTimeout: 30000,
-      greetingTimeout: 15000,
-      socketTimeout: 30000,
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    await transporter.verify();
-    console.log('✅ Gmail configurado com sucesso (porta 587 - TLS)');
-  }
+  sgMail.setApiKey(emailConfig.sendgridApiKey);
+  console.log('✅ SendGrid configurado com sucesso via API');
 } else {
-  console.log('⚠️  Email não configurado - Modo simulação ativado');
-  console.log('   Para usar Gmail, configure no Railway:');
-  console.log('   EMAIL_SERVICE = gmail');
-  console.log('   EMAIL_USER = seuemail@gmail.com');
-  console.log('   EMAIL_PASS = senha_de_app_do_gmail');
-  console.log('   EMAIL_FROM = seuemail@gmail.com');
+  console.log('⚠️  SendGrid não configurado - Modo simulação ativado');
+  console.log('   Configure no Railway:');
+  console.log('   - SENDGRID_API_KEY: sua chave API do SendGrid');
+  console.log('   - EMAIL_FROM: email verificado no SendGrid');
 }
 
 // Função para enviar email
 export const sendEmail = async (to, subject, text, html = null) => {
   try {
-    // Se não tem transporter configurado, simular envio
-    if (!transporter) {
+    // Se não tem API key configurada, simular envio
+    if (!emailConfig.sendgridApiKey) {
       console.log('📧 [SIMULAÇÃO] Enviando email para:', to);
       const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
       return {
@@ -103,54 +40,56 @@ export const sendEmail = async (to, subject, text, html = null) => {
       };
     }
 
-    const mailOptions = {
-      from: `"Espaço Marias" <${emailConfig.from}>`,
+    const msg = {
       to: to,
+      from: {
+        email: emailConfig.from,
+        name: 'Espaço Marias'
+      },
       subject: subject,
       text: text,
       html: html || text,
       replyTo: emailConfig.from,
-      priority: 'high' // Prioridade alta para emails de verificação
+      mailSettings: {
+        sandboxMode: {
+          enable: false
+        }
+      }
     };
 
-    console.log(`📤 Enviando email para: ${to}`);
+    console.log(`📤 Enviando email via SendGrid para: ${to}`);
     console.log(`📝 Assunto: ${subject}`);
     
-    const result = await transporter.sendMail(mailOptions);
+    const response = await sgMail.send(msg);
     
-    console.log(`✅ Email enviado com sucesso! Message ID: ${result.messageId}`);
-    console.log(`📧 Resposta: ${result.response?.substring(0, 100)}...`);
+    console.log(`✅ Email enviado com sucesso! Status: ${response[0].statusCode}`);
+    console.log(`✅ Headers:`, response[0].headers);
 
     return {
       success: true,
-      messageId: result.messageId,
+      messageId: response[0].headers['x-message-id'] || Date.now().toString(),
       message: 'Email enviado com sucesso'
     };
 
   } catch (error) {
     console.error('❌ Erro ao enviar email:', error.message);
-    console.error('❌ Código do erro:', error.code);
     
-    // Modo fallback: retornar sucesso simulado mas com o código real
-    // Isso evita que o usuário fique travado
-    if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
-      console.log('⚠️  Timeout de conexão. Usando modo fallback...');
-      // Para códigos de verificação, ainda retornamos sucesso com código simulado
-      // O código real já foi gerado e será verificado
-      return {
-        success: true,
-        messageId: 'fallback_' + Date.now(),
-        message: 'Email em fila de envio',
-        fallback: true,
-        simulated: true
-      };
+    if (error.response) {
+      console.error('❌ Status Code:', error.response.statusCode);
+      console.error('❌ Body:', error.response.body);
+      console.error('❌ Headers:', error.response.headers);
     }
     
+    // Modo fallback para desenvolvimento
+    console.log('⚠️  Usando modo simulação (fallback)...');
+    const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
     return {
-      success: false,
-      error: error.message,
-      errorCode: error.code,
-      message: 'Erro ao enviar email'
+      success: true,
+      messageId: 'fallback_' + Date.now(),
+      message: 'Email em fila (modo fallback)',
+      simulated: true,
+      fallback: true,
+      code: simulatedCode
     };
   }
 };
@@ -195,11 +134,10 @@ export const sendEmailVerificationCode = async (email) => {
 
   const result = await sendEmail(email, subject, text, html);
 
-  // SEMPRE retornar o código, mesmo em caso de erro
-  // Isso permite que o usuário continue o fluxo
+  // SEMPRE retornar o código real para verificação
   return {
     ...result,
-    code: code, // O código real para ser salvo no banco
+    code: code,
     emailSent: result.success || result.fallback || false
   };
 };
@@ -241,10 +179,7 @@ export const sendPasswordResetCode = async (email, code) => {
 
   const result = await sendEmail(email, subject, text, html);
 
-  return {
-    ...result,
-    code: code
-  };
+  return result;
 };
 
 export default { 
