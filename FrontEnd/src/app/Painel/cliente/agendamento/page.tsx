@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { apiFetch } from "../../../../lib/api";
 
 interface Agendamento {
   _id: string;
@@ -60,9 +61,9 @@ export default function AgendamentoClient() {
   const fetchAll = async () => {
     try {
       const [ags, us, ss] = await Promise.all([
-        fetch("agendamentos").then(r => r.json()),
-        fetch("users").then(r => r.json()), // Buscar todos os usuários
-        fetch("servicos").then(r => r.json()),
+        apiFetch("api/users/agendamentos").then(r => r.json()),
+        apiFetch("api/users/users").then(r => r.json()), // Buscar todos os usuários
+        apiFetch("api/users/servicos").then(r => r.json()),
       ]);
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
       const userAgendamentos = ags.filter((ag: Agendamento) => ag.clientId === userId);
@@ -185,7 +186,7 @@ export default function AgendamentoClient() {
         status: 'pendente',
         adicionais: adicionaisSelecionadosObjs
       };
-      const response = await fetch("criarAgendamentos", {
+      const response = await apiFetch("api/users/criarAgendamentos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

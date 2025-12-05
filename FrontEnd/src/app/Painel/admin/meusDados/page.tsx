@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ChangePasswordModal from "../../../../components/ChangePasswordModal";
+import { apiFetch } from "../../../../lib/api";
 
 interface Admin {
   _id: string;
@@ -49,7 +50,7 @@ export default function MeusDadosAdmin() {
     try {
       const userId = sessionStorage.getItem('userId');
       if (!userId) return;
-      const response = await fetch(`users/${userId}`);
+      const response = await apiFetch(`api/users/users/${userId}`);
       const data = await response.json();
       setAdmin(data);
       setForm(data);
@@ -113,7 +114,7 @@ export default function MeusDadosAdmin() {
     }
     try {
       const targetId = tempId || admin?._id || sessionStorage.getItem('userId');
-      const response = await fetch('startEmailVerification', {
+      const response = await apiFetch('api/users/startEmailVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, tempId: targetId }),
@@ -136,7 +137,7 @@ export default function MeusDadosAdmin() {
   const confirmEmailCode = async () => {
     if (!emailTempId) return;
     try {
-      const response = await fetch('confirmEmailCode', {
+      const response = await apiFetch('api/users/confirmEmailCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: emailCode, tempId: emailTempId }),
@@ -153,7 +154,7 @@ export default function MeusDadosAdmin() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`atualizarUser/${admin?._id}`, {
+        const updateResponse = await apiFetch(`api/users/atualizarUser/${admin?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: emailToVerify }),
@@ -187,7 +188,7 @@ export default function MeusDadosAdmin() {
     }
     try {
       const targetId = tempId || admin?._id || sessionStorage.getItem('userId');
-      const response = await fetch('startPhoneVerification', {
+      const response = await apiFetch('api/users/startPhoneVerification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: form.phone, tempId: targetId }),
@@ -210,7 +211,7 @@ export default function MeusDadosAdmin() {
   const confirmPhoneCode = async () => {
     if (!phoneTempId) return;
     try {
-      const response = await fetch('confirmPhoneCode', {
+      const response = await apiFetch('api/users/confirmPhoneCode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: phoneCode, tempId: phoneTempId }),
@@ -227,7 +228,7 @@ export default function MeusDadosAdmin() {
       
       // Atualizar automaticamente no backend
       try {
-        const updateResponse = await fetch(`atualizarUser/${admin?._id}`, {
+        const updateResponse = await apiFetch(`api/users/atualizarUser/${admin?._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone: phoneToVerify }),
@@ -324,7 +325,7 @@ export default function MeusDadosAdmin() {
 
     try {
       console.log('UPDATE payload', payload);
-      const response = await fetch(`atualizarUser/${admin._id}`, {
+      const response = await apiFetch(`api/users/atualizarUser/${admin._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
