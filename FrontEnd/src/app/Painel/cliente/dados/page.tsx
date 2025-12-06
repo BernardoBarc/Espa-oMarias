@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ChangePasswordModal from "../../../../components/ChangePasswordModal";
+import { apiFetch } from '../../../../lib/api';
 
 interface User {
   _id: string;
@@ -26,7 +27,7 @@ export default function Dados() {
   const fetchUserData = async () => {
     try {
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
-      const response = await fetch(`users/${userId}`);
+      const response = await apiFetch(`api/users/users/${userId}`);
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from '../../lib/api';
 
 export default function EsqueciSenha() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function EsqueciSenha() {
     
     setLoading(true);
     try {
-      const res = await fetch("forgot-password", {
+      const res = await apiFetch("api/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -65,7 +66,7 @@ export default function EsqueciSenha() {
     console.log('🔍 Frontend - Verificando código:', { email, code: resetCode, codeLength: resetCode.length, codeType: typeof resetCode });
     
     try {
-      const res = await fetch("verify-reset-code", {
+      const res = await apiFetch("api/users/verify-reset-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: resetCode }),
@@ -106,7 +107,7 @@ export default function EsqueciSenha() {
     
     setLoading(true);
     try {
-      const res = await fetch("reset-password", {
+      const res = await apiFetch("api/users/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: resetCode, newPassword }),
@@ -133,7 +134,7 @@ export default function EsqueciSenha() {
     setMessage("");
     setLoading(true);
     try {
-      const res = await fetch("forgot-password", {
+      const res = await apiFetch("api/users/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

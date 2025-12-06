@@ -26,7 +26,7 @@ export default function Contato() {
 
   const fetchDados = async () => {
     try {
-      const res = await apiFetch("dados-salao");
+      const res = await apiFetch("api/users/dados-salao");
       const data = await res.json();
       setDadosSalao(data);
     } catch (err) {

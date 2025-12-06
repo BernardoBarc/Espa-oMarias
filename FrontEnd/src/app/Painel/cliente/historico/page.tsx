@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { apiFetch } from '../../../../lib/api';
 
 interface Agendamento {
   _id: string;
@@ -56,7 +57,7 @@ export default function HistoricoComponent() {
       if (loading) return; // Não verificar se estiver carregando algo
       
       try {
-        const response = await fetch("agendamentos");
+        const response = await apiFetch("api/users/agendamentos");
         const agendamentos = await response.json();
         const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
         
@@ -85,9 +86,9 @@ export default function HistoricoComponent() {
   const fetchAll = async () => {
     try {
       const [ags, ms, ss] = await Promise.all([
-        fetch("agendamentos").then(r => r.json()),
-        fetch("users?role=manicure").then(r => r.json()),
-        fetch("servicos").then(r => r.json()),
+        apiFetch("api/users/agendamentos").then(r => r.json()),
+        apiFetch("api/users/users?role=manicure").then(r => r.json()),
+        apiFetch("api/users/servicos").then(r => r.json()),
       ]);
       
       const userId = sessionStorage.getItem('userId') || 'user-id-placeholder';
@@ -105,7 +106,7 @@ export default function HistoricoComponent() {
 
     setLoading(true);
     try {
-      const response = await fetch(`atualizarAgendamentos/${id}`, {
+      const response = await apiFetch(`api/users/atualizarAgendamentos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: 'cancelado' }),
